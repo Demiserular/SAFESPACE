@@ -11,15 +11,15 @@ type LoadingContextType = {
 
 const LoadingContext = createContext<LoadingContextType>({
   isLoading: false,
-  setLoading: () => {},
+  setLoading: () => { },
 });
 
 export const useLoading = () => useContext(LoadingContext);
 
-export const LoadingProvider = ({ 
-  children 
-}: { 
-  children: React.ReactNode 
+export const LoadingProvider = ({
+  children
+}: {
+  children: React.ReactNode
 }) => {
   const [isLoading, setLoading] = useState(false);
   const [loaderType, setLoaderType] = useState<LoaderType>('pulse');
@@ -62,17 +62,13 @@ export const LoadingProvider = ({
       // Add a small delay to make the loader visible even for fast page loads
       setTimeout(() => {
         setLoading(false);
-      }, 500); 
+      }, 800); // Increased from 500ms to 800ms for better visibility
     };
 
-    // Simulate route change start on first load
+    // Show loader on route change
     handleRouteChangeStart();
     handleRouteChangeComplete();
 
-    // Listen for route changes
-    return () => {
-      // This cleanup function runs when the component unmounts or before the effect runs again
-    };
   }, [pathname, searchParams]);
 
   return (

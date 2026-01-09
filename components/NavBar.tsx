@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useState, useEffect } from "react";
 
 export function NavBar() {
@@ -20,11 +21,11 @@ export function NavBar() {
   const { user, loading, initialized, signOut } = useSupabaseAuth();
   const [initials, setInitials] = useState('');
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
-  
+
   useEffect(() => {
     if (user?.email) {
       // Generate initials from email
@@ -55,7 +56,9 @@ export function NavBar() {
     return (
       <nav className="bg-background border-b border-border py-4 hidden md:block">
         <div className="container mx-auto flex items-center justify-between">
-          <div className="text-lg font-bold text-foreground">Safe Space</div>
+          <Link href="/" className="safe-space-logo hover:no-underline">
+            Safe-Space
+          </Link>
           <div className="flex items-center gap-4"></div>
         </div>
       </nav>
@@ -63,49 +66,67 @@ export function NavBar() {
   }
 
   return (
-    <nav className="bg-background border-b border-border py-4 hidden md:block">
+    <nav className="bg-background border-b border-border py-3 hidden md:block">
       <div className="container mx-auto flex items-center justify-between">
-        <Link href="/" className="text-lg font-bold text-foreground">
-          Safe Space
-        </Link>
-        <div className="flex items-center gap-4">
+        {/* Left side - Brand */}
+        <div className="flex items-center">
           <Link
-            href="/chat-rooms"
-            className={`text-sm font-medium ${
-              isActive("/chat-rooms")
-                ? "text-foreground"
-                : "text-foreground/80 hover:text-foreground"
-            }`}
+            href="/"
+            className="safe-space-logo hover:no-underline"
           >
-            Chat Rooms
+            Safe-Space
           </Link>
-          <Link
-            href="/ai-support"
-            className={`flex items-center gap-2 text-sm font-medium ${
-              isActive("/ai-support")
-                ? "text-foreground"
-                : "text-foreground/80 hover:text-foreground"
-            }`}
-          >
-            <HeartPulse className="h-4 w-4" />
-            AI Support
-          </Link>
-          
+        </div>
+
+        {/* Center - Navigation Links */}
+        <div className="flex items-center gap-1">
+          <Button asChild variant="ghost" size="sm" className="h-9 px-3">
+            <Link
+              href="/chat-rooms"
+              className={`flex items-center gap-2 text-sm font-medium transition-colors ${isActive("/chat-rooms")
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              Chat Rooms
+            </Link>
+          </Button>
+
+
+          <Button asChild variant="ghost" size="sm" className="h-9 px-3">
+            <Link
+              href="/posts"
+              className={`flex items-center gap-2 text-sm font-medium transition-colors ${isActive("/posts")
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              Posts
+            </Link>
+          </Button>
+        </div>
+
+        {/* Right side - Theme Toggle & User Actions */}
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+
           {initialized && (
             <>
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={user.user_metadata?.avatar_url || ''} alt={user.email || 'User'} />
-                        <AvatarFallback>{initials}</AvatarFallback>
+                        <AvatarFallback className="text-xs font-medium">{initials}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <div className="flex flex-col space-y-1 p-2">
-                      <p className="text-sm font-medium leading-none">{user.user_metadata?.full_name || user.email?.split('@')[0]}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                      </p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>
@@ -118,9 +139,9 @@ export function NavBar() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/create-post" className="cursor-pointer flex items-center">
+                      <Link href="/settings" className="cursor-pointer flex items-center">
                         <Settings className="mr-2 h-4 w-4" />
-                        <span>Create Post</span>
+                        <span>Settings</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -131,15 +152,15 @@ export function NavBar() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <div className="flex items-center gap-2">
-                  <Button asChild variant="ghost" size="sm">
-                    <Link href="/login" className="flex items-center gap-1">
+                <div className="flex items-center gap-1">
+                  <Button asChild variant="ghost" size="sm" className="h-9">
+                    <Link href="/login" className="flex items-center gap-2">
                       <LogIn className="h-4 w-4" />
                       Login
                     </Link>
                   </Button>
-                  <Button asChild variant="default" size="sm">
-                    <Link href="/signup" className="flex items-center gap-1">
+                  <Button asChild variant="default" size="sm" className="h-9">
+                    <Link href="/signup" className="flex items-center gap-2">
                       <UserPlus className="h-4 w-4" />
                       Sign Up
                     </Link>

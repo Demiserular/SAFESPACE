@@ -95,9 +95,11 @@ export function useSupabaseAuth() {
       // Update user state immediately
       setUser(data.user);
       
-      // Navigate to home page
-      router.push('/');
-      router.refresh();
+      // Navigate to home page after a delay
+      setTimeout(() => {
+        router.push('/');
+        router.refresh();
+      }, 2000);
       
       return { success: true, data };
     } catch (error: any) {
