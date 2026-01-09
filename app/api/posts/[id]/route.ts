@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
 // UUID validation regex
@@ -16,6 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     );
   }
 
+  const supabase = getSupabaseClient();
   const { data, error } = await supabase.from('posts').select('*').eq('id', id).single();
 
   if (error) {
