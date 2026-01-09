@@ -1,4 +1,4 @@
-/* Base container for all loaders */
+/* Base container for all loaders with glass effect */
 .loader-container {
   display: flex;
   flex-direction: column;
@@ -9,29 +9,61 @@
   position: fixed;
   top: 0;
   left: 0;
-  background-color: rgba(255, 255, 255, 0.95);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   z-index: 9999;
 }
 
+/* Glass card container for the loader content */
+.loader-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  z-index: -1;
+}
+
 .loader-message {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   font-size: 0.875rem;
-  color: #000;
+  color: rgba(0, 0, 0, 0.8);
   text-align: center;
   font-weight: 500;
   letter-spacing: 0.05em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  z-index: 1;
 }
 
 /* Pulse Loader */
 .loader-pulse {
   position: relative;
+  z-index: 1;
 }
 
 .pulse-circle {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #000;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
   animation: pulse 1.5s ease-in-out infinite;
 }
 
@@ -54,13 +86,20 @@
 .loader-bounce {
   display: flex;
   gap: 0.5rem;
+  z-index: 1;
 }
 
 .bounce-circle {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background-color: #000;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
   animation: bounce 1.4s infinite ease-in-out both;
 }
 
@@ -87,12 +126,20 @@
   align-items: flex-end;
   gap: 0.25rem;
   height: 30px;
+  z-index: 1;
 }
 
 .wave-bar {
   width: 4px;
   height: 16px;
-  background-color: #000;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
   animation: wave 1.2s infinite ease-in-out;
 }
 
@@ -126,14 +173,21 @@
   position: relative;
   width: 40px;
   height: 40px;
+  z-index: 1;
 }
 
 .spin-circle {
   width: 100%;
   height: 100%;
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  border-top-color: #000;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 2px solid rgba(255, 255, 255, 0.8);
   border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   animation: spin 1s linear infinite;
 }
 
@@ -150,14 +204,20 @@
 .loader-dots {
   display: flex;
   gap: 0.5rem;
+  z-index: 1;
 }
 
 .dots-circle {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #000;
-  opacity: 0.6;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   animation: dots 1.4s infinite ease-in-out both;
 }
 

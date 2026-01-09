@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
@@ -9,7 +9,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { generateUsername } from "@/lib/username-generator"
-import { supabase } from "@/lib/supabase"
 import { ArrowLeft, Send, Users, Info, Settings, LogOut, Shield, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 
@@ -30,6 +29,38 @@ interface ChatRoom {
   category?: string
   activeUsers: number
 }
+
+// Mock data for chat rooms
+const MOCK_ROOMS: { [key: string]: ChatRoom } = {
+  "1": {
+    id: 1,
+    name: "Student Support Hub",
+    description: "A safe space for students to discuss academic stress and life challenges",
+    category: "Student Life",
+    activeUsers: 12
+  },
+  "2": {
+    id: 2,
+    name: "Mental Wellness Circle",
+    description: "Supportive community for mental health discussions and coping strategies",
+    category: "Mental Health",
+    activeUsers: 8
+  },
+  "3": {
+    id: 3,
+    name: "Fitness Motivation",
+    description: "Get motivated and stay accountable with your fitness goals",
+    category: "Fitness",
+    activeUsers: 15
+  },
+  "4": {
+    id: 4,
+    name: "Creative Corner",
+    description: "Share your creative projects and get inspired by others",
+    category: "Creativity",
+    activeUsers: 6
+  }
+};
 
 // Create a client component that receives the roomId as a prop
 function ChatClient({ roomId }: { roomId: string }) {
@@ -53,63 +84,37 @@ function ChatClient({ roomId }: { roomId: string }) {
   useEffect(() => {
     const fetchRoom = async () => {
       setLoading(true)
-      const { data, error } = await supabase
-        .from("chat_rooms")
-        .select("*")
-        .eq("id", roomId)
-        .single()
-
-      if (error) {
-        console.error("Error fetching room:", error)
-        router.push("/chat-rooms")
-      } else if (data) {
-        setRoom(data)
-        
-        // Add system welcome message
-        const welcomeMessage: Message = {
-          id: Date.now(),
-          username: "System",
-          content: `Welcome to ${data.name}! Please be respectful and follow our community guidelines.`,
-          timestamp: new Date().toISOString(),
-          isSystemMessage: true
-        }
-        setMessages([welcomeMessage])
-        
-        // Simulate fetching messages (replace with actual fetch)
-        setTimeout(() => {
-          setLoading(false)
-        }, 1000)
-      }
-    }
-
-    fetchRoom()
-    
-    // Set up subscription for real-time updates
-    const roomSubscription = supabase
-      .channel(`room:${roomId}`)
-      .on('presence', { event: 'sync' }, () => {
-        // Update active users count
-        setActiveUsers(Math.floor(Math.random() * 10) + 1) // Simulated for now
-      })
-      .on('broadcast', { event: 'message' }, payload => {
-        // Handle new messages
-        if (payload.message && payload.username) {
-          const newMessage: Message = {
-            id: Date.now(),
-            username: payload.username,
-            content: payload.message,
-            timestamp: new Date().toISOString()
-          }
-          setMessages(prev => [...prev, newMessage])
-        }
-      })
-      .subscribe()
       
-    // Cleanup subscription
-    return () => {
-      roomSubscription.unsubscribe()
+      // Use mock data instead of Supabase
+      const mockRoom = MOCK_ROOMS[roomId];
+      
+      if (!mockRoom) {
+        console.error("Room not found");
+        router.push("/chat-rooms");
+        return;
+      }
+      
+      setRoom(mockRoom);
+      setActiveUsers(mockRoom.activeUsers);
+      
+      // Add system welcome message
+      const welcomeMessage: Message = {
+        id: Date.now(),
+        username: "System",
+        content: `Welcome to ${mockRoom.name}! Please be respectful and follow our community guidelines.`, 
+        timestamp: new Date().toISOString(),
+        isSystemMessage: true
+      }
+      setMessages([welcomeMessage]);
+      
+      // Simulate loading
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
-  }, [roomId, router])
+
+    fetchRoom();
+  }, [roomId, router]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -132,14 +137,27 @@ function ChatClient({ roomId }: { roomId: string }) {
     setMessages(prev => [...prev, newMessage])
     setMessage("")
 
-    // Send to Supabase realtime channel
-    supabase
-      .channel(`room:${roomId}`)
-      .send({
-        type: 'broadcast',
-        event: 'message',
-        payload: { message: message.trim(), username }
-      })
+    // Simulate other users typing and responding
+    setTimeout(() => {
+      const responses = [
+        "That's a great point!",
+        "I totally agree with you",
+        "Thanks for sharing that",
+        "Interesting perspective",
+        "I can relate to that"
+      ];
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      const botUsername = generateUsername();
+      
+      const botMessage: Message = {
+        id: Date.now() + 1,
+        username: botUsername,
+        content: randomResponse,
+        timestamp: new Date().toISOString()
+      };
+      
+      setMessages(prev => [...prev, botMessage]);
+    }, 2000 + Math.random() * 3000); // Random delay between 2-5 seconds
   }
 
   // Function to handle adding a reaction to a message
@@ -171,6 +189,7 @@ function ChatClient({ roomId }: { roomId: string }) {
     if (file) {
       // Handle file upload logic
       console.log("File uploaded:", file.name);
+      alert(`File "${file.name}" uploaded successfully! (Demo mode)`);
     }
   };
 
@@ -182,9 +201,9 @@ function ChatClient({ roomId }: { roomId: string }) {
   // Get random color for avatar based on username
   const getAvatarColor = (username: string) => {
     const colors = [
-      "bg-red-500", "bg-blue-500", "bg-green-500", 
-      "bg-yellow-500", "bg-purple-500", "bg-pink-500",
-      "bg-indigo-500", "bg-teal-500", "bg-orange-500"
+      "bg-primary", "bg-secondary", "bg-accent", 
+      "bg-muted", "bg-destructive", "bg-border",
+      "bg-ring", "bg-input", "bg-popover"
     ]
     const index = username.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length
     return colors[index]
@@ -199,209 +218,199 @@ function ChatClient({ roomId }: { roomId: string }) {
     
     if (diffMins < 1) return 'just now';
     if (diffMins < 60) return `${diffMins}m ago`;
-    
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays}d ago`;
-    
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
     return date.toLocaleDateString();
-  };
-
-  const chatTheme = {
-    background: "bg-[#1a1a1a]",
-    secondaryBg: "bg-[#2a2a2a]",
-    accent: "bg-indigo-600",
-    text: "text-white",
-    textSecondary: "text-gray-400",
-    border: "border-gray-700",
-    hoverBg: "hover:bg-[#333333]",
-    buttonBg: "bg-indigo-600",
-    buttonHoverBg: "hover:bg-indigo-700",
-  };
+  }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#1a1a1a]">
-        <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-indigo-600 mb-4"></div>
-          <p className="text-gray-400">Connecting to chat room...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading chat room...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!room) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-foreground mb-2">Room Not Found</h2>
+          <p className="text-muted-foreground mb-4">The chat room you're looking for doesn't exist.</p>
+          <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Link href="/chat-rooms">Back to Chat Rooms</Link>
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`flex h-screen ${chatTheme.background}`}>
-      {/* Sidebar */}
-      <div className={`w-64 ${chatTheme.secondaryBg} border-r ${chatTheme.border} hidden md:flex flex-col`}>
-        <div className="p-4 border-b border-gray-700">
-          <h2 className={`text-lg font-semibold ${chatTheme.text}`}>{room?.name}</h2>
-          <p className={`text-sm ${chatTheme.textSecondary}`}>{room?.description}</p>
-        </div>
-        <div className="p-4">
-          <h3 className={`text-sm font-medium ${chatTheme.textSecondary} uppercase tracking-wider mb-3`}>Online Users</h3>
-          <div className={`flex items-center gap-2 ${chatTheme.text}`}>
-            <Users className="h-4 w-4" />
-            <span>{activeUsers} online</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <header className={`px-4 h-16 flex items-center justify-between ${chatTheme.secondaryBg} border-b ${chatTheme.border}`}>
-          <div className="flex items-center gap-3">
-            <Link href="/chat-rooms">
-              <Button variant="ghost" size="icon" className={`rounded-full ${chatTheme.hoverBg}`}>
-                <ArrowLeft className={`h-5 w-5 ${chatTheme.text}`} />
+        <div className="bg-card rounded-xl shadow-lg border border-border mb-6">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border">
+            <div className="flex items-center gap-4 min-w-0">
+              <Button variant="ghost" size="sm" asChild className="hover:bg-accent">
+                <Link href="/chat-rooms" className="flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">Back</span>
+                </Link>
               </Button>
-            </Link>
-            <div>
-              <h1 className={`font-semibold text-lg ${chatTheme.text}`}>{room?.name}</h1>
-              <p className={`text-xs ${chatTheme.textSecondary}`}>{activeUsers} people active</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl font-semibold text-foreground truncate">{room.name}</h1>
+                <p className="text-sm text-muted-foreground truncate">{room.description}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 flex-shrink-0">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="h-4 w-4" />
+                <span>{activeUsers} active</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowInfo(!showInfo)}
+                className="flex items-center gap-2 hover:bg-accent"
+              >
+                <Info className="h-4 w-4" />
+                <span className="hidden sm:inline">Info</span>
+              </Button>
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className={`rounded-full ${chatTheme.hoverBg}`} onClick={() => setShowInfo(!showInfo)}>
-                    <Info className={`h-5 w-5 ${chatTheme.text}`} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Room Info</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className={`rounded-full ${chatTheme.hoverBg}`}>
-                    <Settings className={`h-5 w-5 ${chatTheme.text}`} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Settings</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </header>
-
-        {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`group flex items-start gap-3 hover:bg-[#222222] rounded-lg p-2 transition-colors`}>
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={msg.avatarUrl} />
-                <AvatarFallback className={`${chatTheme.accent} ${chatTheme.text}`}>
-                  {getInitials(msg.username)}
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className={`font-medium ${chatTheme.text}`}>{msg.username}</span>
-                  <span className={`text-xs ${chatTheme.textSecondary}`}>
-                    {formatTimestamp(msg.timestamp)}
-                  </span>
+          {showInfo && (
+            <div className="p-4 sm:p-6 bg-accent/50 border-t border-border">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <h3 className="font-medium text-foreground mb-2">Room Information</h3>
+                  <p className="text-muted-foreground">Category: {room.category}</p>
+                  <p className="text-muted-foreground">Active Users: {activeUsers}</p>
                 </div>
-                
-                <div className={`mt-1 ${msg.isSystemMessage ? chatTheme.textSecondary : chatTheme.text}`}>
-                  {msg.content}
+                <div>
+                  <h3 className="font-medium text-foreground mb-2">Guidelines</h3>
+                  <ul className="text-muted-foreground space-y-1">
+                    <li>• Be respectful and kind</li>
+                    <li>• Keep conversations supportive</li>
+                    <li>• No personal information</li>
+                  </ul>
                 </div>
-                
-                {msg.reactions && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {Object.entries(msg.reactions).map(([emoji, count]) => (
-                      <button
-                        key={emoji}
-                        onClick={() => handleAddReaction(msg.id, emoji)}
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm ${chatTheme.secondaryBg} ${chatTheme.text} hover:bg-opacity-80`}
-                      >
-                        <span>{emoji}</span>
-                        <span className={chatTheme.textSecondary}>{count}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
-              
-              <div className={`opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 ${chatTheme.text}`}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-full"
-                  onClick={() => handleAddReaction(msg.id, "👍")}
-                >
-                  <span>👍</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-full"
-                  onClick={() => handleAddReaction(msg.id, "❤️")}
-                >
-                  <span>❤️</span>
-                </Button>
-              </div>
-            </div>
-          ))}
-          
-          {isTyping && (
-            <div className={`flex items-center gap-2 ${chatTheme.textSecondary} text-sm`}>
-              <div className="flex gap-1">
-                <span className="animate-bounce">.</span>
-                <span className="animate-bounce delay-100">.</span>
-                <span className="animate-bounce delay-200">.</span>
-              </div>
-              <span>Someone is typing</span>
             </div>
           )}
-          <div ref={messagesEndRef} />
         </div>
 
-        {/* Message Input */}
-        <div className={`p-4 ${chatTheme.secondaryBg} border-t ${chatTheme.border}`}>
-          <form onSubmit={handleSendMessage} className="flex items-end gap-2">
-            <div className="flex-1 relative">
-              <Textarea 
-                placeholder="Type a message..." 
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyUp={handleTyping}
-                className={`min-h-[2.5rem] max-h-[10rem] ${chatTheme.background} ${chatTheme.text} border-none resize-none`}
-              />
-              <div className="absolute right-2 bottom-2 flex items-center gap-2">
-                <label className={`cursor-pointer ${chatTheme.buttonBg} ${chatTheme.buttonHoverBg} p-2 rounded-full`}>
-                  <input type="file" className="hidden" onChange={handleFileUpload} />
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4 5a2 2 0 012-2h4.586A2 2 0 0112 3.414L15.586 7A2 2 0 0116 8.414V15a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm4.707 4.707a1 1 0 00-1.414-1.414l-3 3a1 1 0 001.414 1.414L7 11.414V15a1 1 0 102 0v-3.586l1.293 1.293a1 1 0 001.414-1.414l-3-3z" clipRule="evenodd" />
-                  </svg>
-                </label>
+        {/* Chat Messages */}
+        <div className="bg-card rounded-xl shadow-lg border border-border flex flex-col" style={{ height: 'calc(100vh - 14rem)' }}>
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-background">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex ${msg.username === username ? 'justify-end' : 'justify-start'} group`}
+              >
+                <div className="flex gap-3 max-w-[80%]">
+                  {msg.username !== username && !msg.isSystemMessage && (
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      <AvatarFallback className={getAvatarColor(msg.username)}>
+                        {getInitials(msg.username)}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div
+                    className={`rounded-2xl px-4 py-3 ${ 
+                      msg.isSystemMessage
+                        ? 'bg-accent text-accent-foreground border border-border'
+                        : msg.username === username
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-card border border-border text-foreground'
+                    }`}
+                  >
+                    {!msg.isSystemMessage && (
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`font-medium text-xs ${ 
+                          msg.username === username ? 'text-primary-foreground/80' : 'text-muted-foreground'
+                        }`}>
+                          {msg.username === username ? 'You' : msg.username}
+                        </span>
+                        <span className={`text-xs ${ 
+                          msg.username === username ? 'text-primary-foreground/60' : 'text-muted-foreground/70'
+                        }`}>
+                          {formatTimestamp(msg.timestamp)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="text-sm">{msg.content}</div>
+                    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                      <div className="flex gap-1 mt-2">
+                        {Object.entries(msg.reactions).map(([emoji, count]) => (
+                          <button
+                            key={emoji}
+                            className="text-xs bg-white/20 rounded-full px-2 py-1 hover:bg-white/30"
+                            onClick={() => handleAddReaction(msg.id, emoji)}
+                          >
+                            {emoji} {count}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
+            ))}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="bg-card border border-border rounded-2xl px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Someone is typing...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Message Input */}
+          <div className="border-t border-border p-4 sm:p-6 bg-card">
+            <form onSubmit={handleSendMessage} className="flex gap-3">
+              <div className="flex-1">
+                <Input
+                  placeholder="Type your message..."
+                  value={message}
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    handleTyping();
+                  }}
+                  className="rounded-full border-border focus:border-primary focus:ring-primary"
+                />
+              </div>
+              <Button type="submit" disabled={!message.trim()} className="rounded-full bg-primary hover:bg-primary/90 shadow-lg">
+                <Send className="h-4 w-4" />
+              </Button>
+            </form>
+            <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+              <span>Messages are anonymous and secure</span>
+              <span className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                Connected
+              </span>
             </div>
-            <Button 
-              type="submit" 
-              className={`${chatTheme.buttonBg} ${chatTheme.buttonHoverBg} rounded-full p-3`}
-              disabled={!message.trim()}
-            >
-              <Send className="h-5 w-5" />
-            </Button>
-          </form>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Server component that awaits the params and passes them to the client component
-export default async function ChatPage({ params }: { params: { roomId: string } }) {
-  // Await the params
-  const roomId = params.roomId
-  
-  // Pass the roomId to the client component
+export default async function ChatPage({ params }: { params: Promise<{ roomId: string }> }) {
+  const { roomId } = await params;
   return <ChatClient roomId={roomId} />
 }

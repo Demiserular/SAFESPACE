@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { LogOut, Settings, User, Mail, Calendar } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ProfilePage() {
   const { user, loading, signOut } = useSupabaseAuth();
@@ -109,10 +110,12 @@ export default function ProfilePage() {
         </CardContent>
         <Separator />
         <CardFooter className="flex justify-between pt-6">
-          <Button variant="outline" size="sm" className="gap-1">
-            <Settings className="h-4 w-4" />
-            Settings
-          </Button>
+          <Link href="/settings">
+            <Button variant="outline" size="sm" className="gap-1">
+              <Settings className="h-4 w-4" />
+              Settings
+            </Button>
+          </Link>
           <Button variant="destructive" size="sm" className="gap-1" onClick={handleSignOut}>
             <LogOut className="h-4 w-4" />
             Sign Out

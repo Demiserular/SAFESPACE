@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar Position Test</title>
+    <style>
+        /* Test the exact CSS from our app */
+        .mobile-navbar-fixed {
+            position: fixed !important;
+            bottom: 0px !important;
+            left: 0px !important;
+            right: 0px !important;
+            top: auto !important;
+            width: 100vw !important;
+            height: 64px !important;
+            z-index: 99999 !important;
+            transform: none !important;
+            translate: none !important;
+            transition: none !important;
+            animation: none !important;
+            will-change: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            contain: layout size !important;
+            isolation: isolate !important;
+            inset: auto 0px 0px 0px !important;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            position: relative;
+            overflow-x: hidden;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            will-change: scroll-position;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content {
+            height: 300vh;
+            background: linear-gradient(to bottom, #ff9a9e, #fecfef, #fecfef);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .test-results {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 100000;
+        }
+
+        .pass { color: #4ade80; }
+        .fail { color: #f87171; }
+    </style>
+</head>
+<body>
+    <div class="test-results" id="testResults">
+        <strong>🧪 Navbar Position Test</strong><br>
+        <div id="results">Loading...</div>
+        <button onclick="runTest()" style="margin-top: 10px; padding: 5px 10px;">Run Test</button>
+        <button onclick="startMonitoring()" style="margin-top: 5px; padding: 5px 10px;">Monitor</button>
+    </div>
+
+    <div class="content">
+        <h1>Scroll Test Content</h1>
+        <p>This page has a lot of content to test scrolling behavior.</p>
+        <p>The navbar should stay fixed at the bottom while you scroll.</p>
+        
+        <h2>Instructions:</h2>
+        <ol>
+            <li>Click "Run Test" to check navbar positioning</li>
+            <li>Scroll up and down this page</li>
+            <li>Click "Monitor" to continuously check position</li>
+            <li>Look for any movement in the navbar</li>
+        </ol>
+
+        <div style="height: 500px; background: rgba(255,255,255,0.1); margin: 20px 0; padding: 20px;">
+            <h3>Scroll Area 1</h3>
+            <p>Keep scrolling to test the navbar positioning...</p>
+        </div>
+
+        <div style="height: 500px; background: rgba(255,255,255,0.2); margin: 20px 0; padding: 20px;">
+            <h3>Scroll Area 2</h3>
+            <p>The navbar should remain perfectly fixed at the bottom.</p>
+        </div>
+
+        <div style="height: 500px; background: rgba(255,255,255,0.1); margin: 20px 0; padding: 20px;">
+            <h3>Scroll Area 3</h3>
+            <p>Test complete! Check the test results panel.</p>
+        </div>
+    </div>
+
+    <!-- Test Navbar -->
+    <div class="mobile-navbar-fixed" id="testNavbar">
+        <div>🏠 Home</div>
+        <div>💬 Chat</div>
+        <div>➕ Post</div>
+        <div>❤️ Support</div>
+        <div>👤 Profile</div>
+    </div>
+
+    <script>
+        let monitoringInterval = null;
+        let testCount = 0;
+
+        function runTest() {
+            const navbar = document.getElementById('testNavbar');
+            const results = document.getElementById('results');
+            
+            if (!navbar) {
+                results.innerHTML = '<span class="fail">❌ Navbar not found!</span>';
+                return;
+            }
+
+            const rect = navbar.getBoundingClientRect();
+            const computedStyle = window.getComputedStyle(navbar);
+            
+            const tests = [
+                {
+                    name: 'Position Fixed',
+                    test: computedStyle.position === 'fixed',
+                    details: `position: ${computedStyle.position}`
+                },
+                {
+                    name: 'Bottom: 0px',
+                    test: computedStyle.bottom === '0px',
+                    details: `bottom: ${computedStyle.bottom}`
+                },
+                {
+                    name: 'At Viewport Bottom',
+                    test: Math.abs(rect.bottom - window.innerHeight) < 1,
+                    details: `bottom: ${rect.bottom}, viewport: ${window.innerHeight}`
+                },
+                {
+                    name: 'Full Width',
+                    test: Math.abs(rect.width - window.innerWidth) < 1,
+                    details: `width: ${rect.width}, viewport: ${window.innerWidth}`
+                },
+                {
+                    name: 'Correct Height',
+                    test: Math.abs(rect.height - 64) < 1,
+                    details: `height: ${rect.height}px`
+                },
+                {
+                    name: 'Max Z-Index',
+                    test: computedStyle.zIndex === '99999',
+                    details: `z-index: ${computedStyle.zIndex}`
+                },
+                {
+                    name: 'No Transform',
+                    test: computedStyle.transform === 'none',
+                    details: `transform: ${computedStyle.transform}`
+                },
+                {
+                    name: 'Left: 0px',
+                    test: computedStyle.left === '0px',
+                    details: `left: ${computedStyle.left}`
+                },
+                {
+                    name: 'Right: 0px',
+                    test: computedStyle.right === '0px',
+                    details: `right: ${computedStyle.right}`
+                }
+            ];
+
+            let html = `<strong>Test Run #${++testCount}</strong><br>`;
+            let passCount = 0;
+
+            tests.forEach(test => {
+                const status = test.test ? 'pass' : 'fail';
+                const icon = test.test ? '✅' : '❌';
+                html += `<span class="${status}">${icon} ${test.name}</span><br>`;
+                html += `<small>&nbsp;&nbsp;&nbsp;${test.details}</small><br>`;
+                if (test.test) passCount++;
+            });
+
+            html += `<br><strong>${passCount}/${tests.length} tests passed</strong>`;
+            
+            if (passCount === tests.length) {
+                html += '<br><span class="pass">🎉 ALL TESTS PASSED!</span>';
+            } else {
+                html += '<br><span class="fail">⚠️ SOME TESTS FAILED!</span>';
+            }
+
+            results.innerHTML = html;
+            
+            // Log detailed info to console
+            console.log('📊 Navbar Test Results:', {
+                passCount: `${passCount}/${tests.length}`,
+                rect: rect,
+                computedStyle: {
+                    position: computedStyle.position,
+                    bottom: computedStyle.bottom,
+                    left: computedStyle.left,
+                    right: computedStyle.right,
+                    width: computedStyle.width,
+                    height: computedStyle.height,
+                    zIndex: computedStyle.zIndex,
+                    transform: computedStyle.transform,
+                    contain: computedStyle.contain,
+                    isolation: computedStyle.isolation
+                },
+                viewport: {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                },
+                scroll: {
+                    x: window.scrollX,
+                    y: window.scrollY
+                }
+            });
+        }
+
+        function startMonitoring() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+                document.querySelector('button[onclick="startMonitoring()"]').textContent = 'Monitor';
+                return;
+            }
+
+            document.querySelector('button[onclick="startMonitoring()"]').textContent = 'Stop Monitor';
+            
+            monitoringInterval = setInterval(() => {
+                const navbar = document.getElementById('testNavbar');
+                const rect = navbar.getBoundingClientRect();
+                const isAtBottom = Math.abs(rect.bottom - window.innerHeight) < 1;
+                
+                if (!isAtBottom) {
+                    console.error('❌ NAVBAR MOVED!', {
+                        currentBottom: rect.bottom,
+                        expectedBottom: window.innerHeight,
+                        difference: rect.bottom - window.innerHeight,
+                        scrollY: window.scrollY
+                    });
+                    
+                    // Flash the navbar to highlight the issue
+                    navbar.style.background = 'red';
+                    setTimeout(() => {
+                        navbar.style.background = 'rgba(0, 0, 0, 0.9)';
+                    }, 100);
+                }
+            }, 100);
+
+            console.log('🔍 Started monitoring navbar position...');
+        }
+
+        // Run initial test when page loads
+        window.addEventListener('load', () => {
+            setTimeout(runTest, 500);
+        });
+
+        // Test scroll behavior
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('testNavbar');
+            const rect = navbar.getBoundingClientRect();
+            const isFixed = Math.abs(rect.bottom - window.innerHeight) < 1;
+            
+            if (!isFixed) {
+                console.warn('⚠️ Navbar position changed during scroll!', {
+                    bottom: rect.bottom,
+                    expected: window.innerHeight,
+                    scrollY: window.scrollY
+                });
+            }
+        });
+
+        // Global test function for console
+        window.testNavbar = runTest;
+        window.monitorNavbar = startMonitoring;
+    </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "safe-space-tests",
+  "version": "1.0.0",
+  "description": "Test suite for Safe Space navbar positioning",
+  "scripts": {
+    "install-deps": "npm install",
+    "test:navbar": "jest navbar-simple.test.js",
+    "test:navbar:watch": "jest navbar-simple.test.js --watch",
+    "test:navbar:coverage": "jest navbar-simple.test.js --coverage",
+    "test:navbar:old": "jest navbar-positioning.test.js",
+    "test:all": "jest",
+    "test:manual": "echo 'Open browser and run: NavbarTestUtils.runBrowserTest()'",
+    "test:browser": "echo 'Copy content from browser-console-test.js into browser console'"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^23.0.0",
+    "@testing-library/jest-dom": "^6.1.0"
+  },
+  "jest": {
+    "testEnvironment": "jest-environment-jsdom",
+    "collectCoverageFrom": [
+      "../components/**/*.{js,jsx,ts,tsx}",
+      "../app/**/*.{js,jsx,ts,tsx}",
+      "!**/*.d.ts",
+      "!**/node_modules/**"
+    ],
+    "testMatch": [
+      "<rootDir>/**/*.test.{js,jsx,ts,tsx}"
+    ]
+  }
+}

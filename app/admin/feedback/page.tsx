@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { 
-  BarChart, 
-  LineChart,
   Card, 
   CardContent, 
   CardDescription, 
   CardHeader, 
   CardTitle,
+} from "@/components/ui/card";
+import { 
+  BarChart, 
+  LineChart,
   DonutChart,
 } from "@tremor/react"
 import {
@@ -502,7 +504,7 @@ export default function AdminFeedbackPage() {
                               <Badge
                                 variant={
                                   item.satisfaction_rating.includes('satisfied')
-                                    ? 'success'
+                                    ? 'default'
                                     : item.satisfaction_rating === 'neutral'
                                     ? 'secondary'
                                     : 'destructive'

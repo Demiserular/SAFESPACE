@@ -65,3 +65,6 @@ ENV/
 
 # Logs
 *.log
+
+# Documentation
+docs/

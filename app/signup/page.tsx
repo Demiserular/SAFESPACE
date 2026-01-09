@@ -60,34 +60,35 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-          <CardDescription>
+    <div className="flex min-h-screen items-center justify-center px-4 py-6 sm:py-12">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-2 p-6">
+          <CardTitle className="text-2xl sm:text-3xl font-bold text-center">Create an account</CardTitle>
+          <CardDescription className="text-center text-sm sm:text-base">
             Enter your details below to create your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && (
               <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription className="text-sm">{error}</AlertDescription>
               </Alert>
             )}
             
             {success && (
               <Alert className="bg-green-50 border-green-200">
-                <AlertDescription className="text-green-800">{success}</AlertDescription>
+                <AlertDescription className="text-green-800 text-sm">{success}</AlertDescription>
               </Alert>
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm sm:text-base font-medium">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="name@example.com"
+                className="text-sm sm:text-base"
                 {...register('email')}
               />
               {errors.email && (
@@ -96,10 +97,11 @@ export default function SignupPage() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm sm:text-base font-medium">Password</Label>
               <Input
                 id="password"
                 type="password"
+                className="text-sm sm:text-base"
                 {...register('password')}
               />
               {errors.password && (
@@ -108,10 +110,11 @@ export default function SignupPage() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-sm sm:text-base font-medium">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
+                className="text-sm sm:text-base"
                 {...register('confirmPassword')}
               />
               {errors.confirmPassword && (
@@ -119,7 +122,11 @@ export default function SignupPage() {
               )}
             </div>
             
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full touch-manipulation text-sm sm:text-base py-3" 
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -131,10 +138,10 @@ export default function SignupPage() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
+        <CardFooter className="flex justify-center p-6 pt-0">
+          <p className="text-xs sm:text-sm text-muted-foreground text-center">
             Already have an account?{' '}
-            <Link href="/login" className="text-primary hover:underline">
+            <Link href="/login" className="text-primary hover:underline touch-manipulation font-medium">
               Login
             </Link>
           </p>
