@@ -9,7 +9,7 @@ async function checkTables() {
   console.log('Checking available tables...');
   
   // Try to list all tables by attempting to query common ones
-  const tables = ['posts', 'comments', 'reactions', 'reports', 'user_roles'];
+  const tables = ['posts', 'comments', 'reactions', 'reports', 'user_roles', 'chat_rooms', 'chat_messages'];
   
   for (const table of tables) {
     try {

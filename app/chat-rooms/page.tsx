@@ -15,17 +15,18 @@ import Loader from '@/components/ui/Loader';
 import { Badge } from "@/components/ui/badge"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { MobileChatRoomCircles } from "@/components/MobileChatRoomCircles"
+import { ChatService, ChatRoom as ChatRoomType } from "@/lib/chat-service"
 
 // Define types for the application
 interface Message {
-  id: number;
+  id: number | string;
   username: string;
   content: string;
   timestamp: string;
 }
 
 interface ChatRoom {
-  id: number;
+  id: number | string;
   name: string;
   description: string;
   category?: string;
@@ -41,83 +42,22 @@ interface ChatRoom {
 
 // Interest tags for matching
 const INTEREST_TAGS = [
-  "Student Life", "Anxiety", "Depression", "Productivity", "Fitness", 
+  "Student Life", "Anxiety", "Depression", "Productivity", "Fitness",
   "Relationships", "Career", "Creativity", "Mindfulness", "Overthinking",
   "Social Anxiety", "Self-Care", "Motivation", "Stress", "Loneliness",
   "Confidence", "Goals", "Habits", "Sleep", "Nutrition"
 ];
 
-// Mock data for chat rooms
-const MOCK_CHAT_ROOMS: ChatRoom[] = [
-  {
-    id: 1,
-    name: "Student Support Hub",
-    description: "A safe space for students to discuss academic stress and life challenges",
-    category: "Student Life",
-    activeUsers: 12,
-    interests: ["Student Life", "Stress", "Productivity", "Anxiety"],
-    matchScore: 85,
-    isPrivate: false,
-    messages: [
-      { id: 1, username: "StudyBuddy", content: "Anyone else feeling overwhelmed with finals?", timestamp: "2024-01-15T10:30:00Z" },
-      { id: 2, username: "ZenStudent", content: "Take it one day at a time! You've got this 💪", timestamp: "2024-01-15T10:32:00Z" },
-      { id: 3, username: "AnxiousMind", content: "I'm so stressed about my presentation tomorrow", timestamp: "2024-01-15T10:35:00Z" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Mental Wellness Circle",
-    description: "Supportive community for mental health discussions and coping strategies",
-    category: "Mental Health",
-    activeUsers: 8,
-    interests: ["Anxiety", "Depression", "Mindfulness", "Self-Care"],
-    matchScore: 90,
-    isPrivate: false,
-    messages: [
-      { id: 4, username: "PeacefulSoul", content: "Today's meditation really helped me center myself", timestamp: "2024-01-15T09:15:00Z" },
-      { id: 5, username: "HealingHeart", content: "Remember to be kind to yourself today", timestamp: "2024-01-15T09:20:00Z" }
-    ]
-  },
-  {
-    id: 3,
-    name: "Fitness Motivation",
-    description: "Get motivated and stay accountable with your fitness goals",
-    category: "Fitness",
-    activeUsers: 15,
-    interests: ["Fitness", "Motivation", "Goals", "Habits"],
-    matchScore: 75,
-    isPrivate: false,
-    messages: [
-      { id: 6, username: "FitLife", content: "Just completed my morning workout! 💪", timestamp: "2024-01-15T08:00:00Z" },
-      { id: 7, username: "GymBuddy", content: "Great job! What's everyone's fitness goal for this week?", timestamp: "2024-01-15T08:05:00Z" }
-    ]
-  },
-  {
-    id: 4,
-    name: "Creative Corner",
-    description: "Share your creative projects and get inspired by others",
-    category: "Creativity",
-    activeUsers: 6,
-    interests: ["Creativity", "Motivation", "Goals"],
-    matchScore: 60,
-    isPrivate: false,
-    messages: [
-      { id: 8, username: "ArtisticSoul", content: "Working on a new painting today", timestamp: "2024-01-15T11:00:00Z" },
-      { id: 9, username: "CreativeMind", content: "That sounds amazing! What's your inspiration?", timestamp: "2024-01-15T11:05:00Z" }
-    ]
-  }
-];
-
 export default function ChatRooms() {
   const isMobile = useIsMobile();
   const [activeUsername, setActiveUsername] = useState('')
-  const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null)
+  const [selectedRoom, setSelectedRoom] = useState<ChatRoomType | null>(null)
   const [message, setMessage] = useState("")
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
-  const [chatRooms, setChatRooms] = useState<ChatRoom[]>([])
-  const [deletingRoom, setDeletingRoom] = useState<number | null>(null);
-  const [sharingRoom, setSharingRoom] = useState<number | null>(null);
+  const [chatRooms, setChatRooms] = useState<ChatRoomType[]>([])
+  const [deletingRoom, setDeletingRoom] = useState<string | null>(null);
+  const [sharingRoom, setSharingRoom] = useState<string | null>(null);
   const [userInterests, setUserInterests] = useState<string[]>([]);
   const [showInterestDialog, setShowInterestDialog] = useState(false);
 
@@ -133,14 +73,35 @@ export default function ChatRooms() {
   }, []);
 
   useEffect(() => {
-    // Use mock data instead of fetching from backend
-    const roomsWithInterests = MOCK_CHAT_ROOMS.map(room => ({
-      ...room,
-      interests: room.interests || [],
-      matchScore: calculateMatchScore(room.interests || [])
-    }));
-    setChatRooms(roomsWithInterests);
-  }, [userInterests]);
+    const loadChatRooms = async () => {
+      setLoading(true)
+      try {
+        const rooms = await ChatService.getChatRooms()
+        // Map Supabase rooms to local ChatRoom type if needed
+        const mappedRooms = rooms.map(room => ({
+          id: room.id,
+          name: room.name,
+          description: room.description,
+          category: room.category,
+          activeUsers: 0, // Need to implement active user tracking
+          messages: [],
+          interests: [], // Add interest tags column to DB if needed
+          isPrivate: room.is_private,
+          roomCode: room.room_code,
+          createdBy: room.created_by,
+          maxUsers: room.max_users
+        }))
+        setChatRooms(mappedRooms)
+      } catch (error) {
+        console.error("Failed to load chat rooms:", error)
+        // Could show error message to user
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadChatRooms()
+  }, []);
 
   // Calculate match score based on shared interests
   const calculateMatchScore = (roomInterests: string[]) => {
@@ -158,40 +119,79 @@ export default function ChatRooms() {
   const handleJoinPrivateRoom = async (roomCode: string) => {
     setLoading(true);
     
-    // Mock private room validation
-    setTimeout(() => {
-      if (roomCode === "DEMO123") {
-        const privateRoom: ChatRoom = {
-          id: 999,
-          name: "Demo Private Room",
-          description: "A private room for demonstration",
-          category: "Private",
-          activeUsers: 3,
-          interests: ["Student Life", "Anxiety"],
-          matchScore: 80,
-          isPrivate: true,
-          roomCode: "DEMO123",
-          maxUsers: 10,
-          messages: [
-            { id: 100, username: "PrivateUser", content: "Welcome to the private room!", timestamp: "2024-01-15T12:00:00Z" }
-          ]
+    try {
+      // Try to find the room in the database specifically by code
+      const room = await ChatService.getChatRoomByCode(roomCode);
+      
+      if (room) {
+        // Map the database room to the local ChatRoom interface
+        const mappedRoom: ChatRoom = {
+          id: room.id,
+          name: room.name,
+          description: room.description,
+          category: room.category,
+          activeUsers: 0, // Placeholder
+          isPrivate: room.is_private,
+          roomCode: room.room_code,
+          maxUsers: room.max_users,
+          interests: [],
+          messages: []
         };
 
         setChatRooms(prevRooms => {
-          const existing = prevRooms.find(room => room.id === privateRoom.id);
+          const existing = prevRooms.find(r => r.id === mappedRoom.id);
           if (existing) {
-            return prevRooms;
+             return prevRooms;
           }
-          return [privateRoom, ...prevRooms];
+           return [mappedRoom, ...prevRooms];
         });
-
-        setSelectedRoom(privateRoom);
-        setMessages(privateRoom.messages || []);
+        
+        setSelectedRoom(mappedRoom);
+        setMessages([]);
       } else {
-        alert('Invalid room code. Try "DEMO123" for demo purposes.');
+        // Fallback for DEMO123 to keep existing behavior if desired, or remove it.
+        // User complained about the message, so let's change behavior to only accept valid DB codes OR keep demo if needed but change message? 
+        // User report says "whenever i try to join a room with in real time with code its says "Invalid room code. Try "DEMO123" for demo purposes.""
+        // This implies they tried a code they thought was valid (maybe from another user).
+        
+        if (roomCode === "DEMO123") {
+           // Keep the demo legacy logic for now just in case
+            const privateRoom: ChatRoom = {
+              id: 999,
+              name: "Demo Private Room",
+              description: "A private room for demonstration",
+              category: "Private",
+              activeUsers: 3,
+              interests: ["Student Life", "Anxiety"],
+              matchScore: 80,
+              isPrivate: true,
+              roomCode: "DEMO123",
+              maxUsers: 10,
+              messages: [
+                { id: 100, username: "PrivateUser", content: "Welcome to the private room!", timestamp: "2024-01-15T12:00:00Z" }
+              ]
+            };
+
+            setChatRooms(prevRooms => {
+              const existing = prevRooms.find(room => room.id === privateRoom.id);
+              if (existing) {
+                return prevRooms;
+              }
+              return [privateRoom, ...prevRooms];
+            });
+
+            setSelectedRoom(privateRoom);
+            setMessages(privateRoom.messages || []);
+        } else {
+            alert('Invalid room code. Please check code and try again.');
+        }
       }
-      setLoading(false);
-    }, 1000);
+    } catch (error) {
+       console.error("Error joining private room:", error);
+       alert('Failed to verify room code.');
+    } finally {
+       setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -205,23 +205,63 @@ export default function ChatRooms() {
     }
   }, [chatRooms, selectedRoom]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim()) return;
+  // Subscribe to real-time messages when room is selected
+  useEffect(() => {
+    if (!selectedRoom) return;
 
-    setLoading(true);
-    const newMessage: Message = {
-      id: Date.now(),
-      username: activeUsername,
-      content: message,
-      timestamp: new Date().toISOString(),
+    let unsubscribe: (() => void) | undefined;
+
+    const setupChat = async () => {
+        // Load initial messages
+        try {
+            const msgs = await ChatService.getChatMessages(String(selectedRoom.id));
+            setMessages(msgs.map(m => ({
+                id: m.id,
+                username: m.username,
+                content: m.content,
+                timestamp: m.created_at
+            }))); // Service returns oldest first (asc) after reverse.
+        } catch (e) {
+            console.error("Error loading messages:", e);
+        }
+
+        // Subscribe
+        unsubscribe = ChatService.subscribeToMessages(String(selectedRoom.id), (newMsg) => {
+            setMessages(prev => {
+                // Prevent duplicates
+                if (prev.some(m => m.id === newMsg.id)) return prev;
+                
+                return [...prev, {
+                    id: newMsg.id,
+                    username: newMsg.username,
+                    content: newMsg.content,
+                    timestamp: newMsg.created_at
+                }]
+            });
+        });
     };
 
-    setTimeout(() => {
-      setMessages([...messages, newMessage]);
-      setMessage("");
-      setLoading(false);
-    }, 1000);
+    setupChat();
+
+    return () => {
+        if (unsubscribe) unsubscribe();
+    };
+  }, [selectedRoom?.id]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!message.trim() || !selectedRoom) return;
+
+    const content = message;
+    setMessage("");
+
+    try {
+      await ChatService.sendMessage(String(selectedRoom.id), content, activeUsername);
+    } catch (error) {
+       console.error("Error sending message:", error);
+       alert("Failed to send message");
+       setMessage(content);
+    }
   }
 
   const handleDeleteRoom = async (roomId: number) => {
@@ -256,7 +296,7 @@ export default function ChatRooms() {
     setMessages(newRoom.messages || []);
   };
 
-  function openChatInterface(roomId: number) {
+  function openChatInterface(roomId: string) {
     const room = chatRooms.find(r => r.id === roomId);
     if (room) {
       setSelectedRoom(room);
@@ -321,8 +361,8 @@ export default function ChatRooms() {
                     <Card
                       key={room.id}
                       className={`cursor-pointer transition-all duration-300 hover:shadow-lg border-2 ${
-                        selectedRoom?.id === room.id 
-                          ? 'border-primary bg-accent shadow-lg' 
+                        selectedRoom?.id === room.id
+                          ? 'border-primary bg-accent shadow-lg'
                           : 'border-border hover:border-border/60 bg-card'
                       }`}
                       onClick={() => openChatInterface(room.id)}
@@ -332,11 +372,6 @@ export default function ChatRooms() {
                           <div className="flex-1 min-w-0">
                             <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
                               <span className="truncate">{room.name}</span>
-                              {room.isPrivate && (
-                                <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground">
-                                  Private
-                                </Badge>
-                              )}
                             </CardTitle>
                             <CardDescription className="text-xs text-muted-foreground mt-2 line-clamp-2">
                               {room.description}
@@ -344,7 +379,7 @@ export default function ChatRooms() {
                           </div>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground ml-2">
                             <Users className="w-3 h-3" />
-                            <span className="font-medium">{room.activeUsers}</span>
+                            <span className="font-medium">0</span>
                           </div>
                         </div>
                       </CardHeader>
@@ -507,38 +542,46 @@ function CreateRoomDialog({ setChatRooms, onRoomCreation }: { setChatRooms: Reac
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Close the dialog immediately
-    setOpen(false);
-    
-    // Create a new room object with default values
-    const newRoom: ChatRoom = {
-      id: Date.now(), // Temporary ID until we get the real one from the database
-      name: roomName,
-      description: roomDescription,
-      category: roomCategory,
-      activeUsers: 0,
-      messages: [],
-      isPrivate: isPrivate,
-      roomCode: isPrivate ? roomCode : undefined,
-      createdBy: generateUsername(),
-      maxUsers: maxUsers
-    };
-    
-    // Add the new room to the UI immediately for better user experience
-    onRoomCreation(newRoom);
-    
-    // Reset form fields
-    setRoomName("");
-    setRoomCategory("");
-    setRoomDescription("");
-    setIsPrivate(false);
-    setMaxUsers(10);
-    setRoomCode("");
-    
-    // Mock database creation (simulate success)
-    setTimeout(() => {
-      console.log('Room created successfully:', newRoom);
-    }, 1000);
+    try {
+      const createdRoom = await ChatService.createChatRoom({
+        name: roomName,
+        description: roomDescription,
+        category: roomCategory,
+        max_users: maxUsers,
+        is_private: isPrivate,
+        room_code: isPrivate ? roomCode : undefined,
+      });
+
+      // Map Supabase room to local ChatRoom interface
+      const newRoom: ChatRoom = {
+        id: createdRoom.id,
+        name: createdRoom.name,
+        description: createdRoom.description,
+        category: createdRoom.category,
+        activeUsers: 0,
+        messages: [],
+        interests: [],
+        isPrivate: createdRoom.is_private,
+        roomCode: createdRoom.room_code,
+        createdBy: createdRoom.created_by, 
+        maxUsers: createdRoom.max_users
+      };
+      
+      onRoomCreation(newRoom);
+      setOpen(false);
+      
+      // Reset form fields
+      setRoomName("");
+      setRoomCategory("");
+      setRoomDescription("");
+      setIsPrivate(false);
+      setMaxUsers(10);
+      setRoomCode("");
+      
+    } catch (error) {
+       console.error("Failed to create room:", error);
+       alert("Failed to create room. Please try again.");
+    }
   };
 
   return (

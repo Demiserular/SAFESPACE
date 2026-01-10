@@ -18,7 +18,9 @@ CREATE TABLE chat_rooms (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     is_active BOOLEAN DEFAULT TRUE,
-    max_participants INTEGER DEFAULT 100
+    max_users INTEGER DEFAULT 100,
+    is_private BOOLEAN DEFAULT FALSE,
+    room_code VARCHAR(20)
 );
 
 -- 2. Create chat_messages table with real-time support

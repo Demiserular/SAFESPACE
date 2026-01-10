@@ -9,11 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { generateUsername } from "@/lib/username-generator"
+import { ChatService, ChatMessage, ChatRoom } from "@/lib/chat-service"
 import { ArrowLeft, Send, Users, Info, Settings, LogOut, Shield, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 
 interface Message {
-  id: number
+  id: string
   username: string
   content: string
   timestamp: string
@@ -22,52 +23,12 @@ interface Message {
   reactions?: { [emoji: string]: number }
 }
 
-interface ChatRoom {
-  id: number
-  name: string
-  description: string
-  category?: string
-  activeUsers: number
-}
-
-// Mock data for chat rooms
-const MOCK_ROOMS: { [key: string]: ChatRoom } = {
-  "1": {
-    id: 1,
-    name: "Student Support Hub",
-    description: "A safe space for students to discuss academic stress and life challenges",
-    category: "Student Life",
-    activeUsers: 12
-  },
-  "2": {
-    id: 2,
-    name: "Mental Wellness Circle",
-    description: "Supportive community for mental health discussions and coping strategies",
-    category: "Mental Health",
-    activeUsers: 8
-  },
-  "3": {
-    id: 3,
-    name: "Fitness Motivation",
-    description: "Get motivated and stay accountable with your fitness goals",
-    category: "Fitness",
-    activeUsers: 15
-  },
-  "4": {
-    id: 4,
-    name: "Creative Corner",
-    description: "Share your creative projects and get inspired by others",
-    category: "Creativity",
-    activeUsers: 6
-  }
-};
-
 // Create a client component that receives the roomId as a prop
 function ChatClient({ roomId }: { roomId: string }) {
   const router = useRouter()
   const [username, setUsername] = useState("")
   const [message, setMessage] = useState("")
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [room, setRoom] = useState<ChatRoom | null>(null)
   const [loading, setLoading] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -80,41 +41,52 @@ function ChatClient({ roomId }: { roomId: string }) {
     setUsername(generateUsername());
   }, []);
 
-  // Fetch room details
+  // Initialize chat service and fetch room details
   useEffect(() => {
-    const fetchRoom = async () => {
+    const initializeChat = async () => {
       setLoading(true)
-      
-      // Use mock data instead of Supabase
-      const mockRoom = MOCK_ROOMS[roomId];
-      
-      if (!mockRoom) {
-        console.error("Room not found");
-        router.push("/chat-rooms");
-        return;
+
+      try {
+        // Fetch room details
+        const roomData = await ChatService.getChatRoom(roomId)
+        if (!roomData) {
+          console.error("Room not found")
+          router.push("/chat-rooms")
+          return
+        }
+
+        setRoom(roomData)
+
+        // Load existing messages
+        const existingMessages = await ChatService.getChatMessages(roomId)
+        setMessages(existingMessages)
+
+        // Join the room for real-time updates
+        await ChatService.joinRoom(roomId, username)
+
+        // Subscribe to new messages
+        const unsubscribe = ChatService.subscribeToMessages(roomId, (newMessage) => {
+          setMessages(prev => [...prev, newMessage])
+        })
+
+        // Cleanup function
+        return () => {
+          unsubscribe()
+          ChatService.leaveRoom(roomId, username)
+        }
+
+      } catch (error) {
+        console.error("Failed to initialize chat:", error)
+        router.push("/chat-rooms")
+      } finally {
+        setLoading(false)
       }
-      
-      setRoom(mockRoom);
-      setActiveUsers(mockRoom.activeUsers);
-      
-      // Add system welcome message
-      const welcomeMessage: Message = {
-        id: Date.now(),
-        username: "System",
-        content: `Welcome to ${mockRoom.name}! Please be respectful and follow our community guidelines.`, 
-        timestamp: new Date().toISOString(),
-        isSystemMessage: true
-      }
-      setMessages([welcomeMessage]);
-      
-      // Simulate loading
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000);
     }
 
-    fetchRoom();
-  }, [roomId, router]);
+    if (username) {
+        initializeChat()
+    }
+  }, [roomId, router, username])
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -122,60 +94,25 @@ function ChatClient({ roomId }: { roomId: string }) {
   }, [messages])
 
   // Handle sending a message
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!message.trim()) return
 
-    const newMessage: Message = {
-      id: Date.now(),
-      username,
-      content: message,
-      timestamp: new Date().toISOString()
+    try {
+      await ChatService.sendMessage(roomId, message.trim(), username)
+      setMessage("")
+    } catch (error) {
+      console.error("Failed to send message:", error)
+      // Could add error handling UI here
     }
-
-    // Add message to local state immediately
-    setMessages(prev => [...prev, newMessage])
-    setMessage("")
-
-    // Simulate other users typing and responding
-    setTimeout(() => {
-      const responses = [
-        "That's a great point!",
-        "I totally agree with you",
-        "Thanks for sharing that",
-        "Interesting perspective",
-        "I can relate to that"
-      ];
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      const botUsername = generateUsername();
-      
-      const botMessage: Message = {
-        id: Date.now() + 1,
-        username: botUsername,
-        content: randomResponse,
-        timestamp: new Date().toISOString()
-      };
-      
-      setMessages(prev => [...prev, botMessage]);
-    }, 2000 + Math.random() * 3000); // Random delay between 2-5 seconds
   }
 
   // Function to handle adding a reaction to a message
-  const handleAddReaction = (messageId: number, emoji: string) => {
-    setMessages(prevMessages =>
-      prevMessages.map(msg =>
-        msg.id === messageId
-          ? {
-              ...msg,
-              reactions: {
-                ...msg.reactions,
-                [emoji]: (msg.reactions?.[emoji] || 0) + 1,
-              },
-            }
-          : msg
-      )
-    );
-  };
+  const handleAddReaction = (messageId: string, emoji: string) => {
+    // Note: Reactions are not implemented in the current ChatMessage interface
+    // This could be added as a future enhancement
+    console.log(`Reaction ${emoji} added to message ${messageId}`)
+  }
 
   // Function to indicate typing
   const handleTyping = () => {
@@ -313,7 +250,7 @@ function ChatClient({ roomId }: { roomId: string }) {
                 className={`flex ${msg.username === username ? 'justify-end' : 'justify-start'} group`}
               >
                 <div className="flex gap-3 max-w-[80%]">
-                  {msg.username !== username && !msg.isSystemMessage && (
+                  {msg.username !== username && !msg.is_system && (
                     <Avatar className="h-8 w-8 flex-shrink-0">
                       <AvatarFallback className={getAvatarColor(msg.username)}>
                         {getInitials(msg.username)}
@@ -321,42 +258,29 @@ function ChatClient({ roomId }: { roomId: string }) {
                     </Avatar>
                   )}
                   <div
-                    className={`rounded-2xl px-4 py-3 ${ 
-                      msg.isSystemMessage
+                    className={`rounded-2xl px-4 py-3 ${
+                      msg.is_system
                         ? 'bg-accent text-accent-foreground border border-border'
                         : msg.username === username
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-card border border-border text-foreground'
                     }`}
                   >
-                    {!msg.isSystemMessage && (
+                    {!msg.is_system && (
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-medium text-xs ${ 
+                        <span className={`font-medium text-xs ${
                           msg.username === username ? 'text-primary-foreground/80' : 'text-muted-foreground'
                         }`}>
                           {msg.username === username ? 'You' : msg.username}
                         </span>
-                        <span className={`text-xs ${ 
+                        <span className={`text-xs ${
                           msg.username === username ? 'text-primary-foreground/60' : 'text-muted-foreground/70'
                         }`}>
-                          {formatTimestamp(msg.timestamp)}
+                          {formatTimestamp(msg.created_at)}
                         </span>
                       </div>
                     )}
                     <div className="text-sm">{msg.content}</div>
-                    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                      <div className="flex gap-1 mt-2">
-                        {Object.entries(msg.reactions).map(([emoji, count]) => (
-                          <button
-                            key={emoji}
-                            className="text-xs bg-white/20 rounded-full px-2 py-1 hover:bg-white/30"
-                            onClick={() => handleAddReaction(msg.id, emoji)}
-                          >
-                            {emoji} {count}
-                          </button>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

@@ -6,6 +6,7 @@ import { Hash, Lock, Users, Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogTrigger } from "@/components/ui/dialog"
+import { ChatRoom } from "@/lib/chat-service"
 
 // Define room category colors
 const CATEGORY_COLORS: Record<string, { bg: string, text: string, icon: string }> = {
@@ -22,21 +23,10 @@ const CATEGORY_COLORS: Record<string, { bg: string, text: string, icon: string }
   "default": { bg: "bg-slate-500", text: "text-slate-500", icon: "#" }
 };
 
-interface ChatRoom {
-  id: number;
-  name: string;
-  description: string;
-  category?: string;
-  activeUsers: number;
-  matchScore?: number;
-  isPrivate?: boolean;
-  roomCode?: string;
-}
-
 interface MobileChatRoomCirclesProps {
   rooms: ChatRoom[];
-  selectedRoomId: number | null;
-  onRoomSelect: (roomId: number) => void;
+  selectedRoomId: string | null;
+  onRoomSelect: (roomId: string) => void;
   onCreateRoom?: () => void;
 }
 
@@ -163,15 +153,15 @@ export function MobileChatRoomCircles({
                     >
                       {getRoomIcon(room)}
                       
-                      {/* Active users indicator */}
-                      {room.activeUsers > 0 && (
+                      {/* Active users indicator - disabled until added to ChatRoom */}
+                      {false && (
                         <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                          {room.activeUsers}
+                          0
                         </div>
                       )}
                       
-                      {/* Match score indicator */}
-                      {room.matchScore && room.matchScore > 70 && (
+                      {/* Match score indicator - disabled until added to ChatRoom */}
+                      {false && (
                         <div className="absolute -bottom-1 -right-1 bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                           ✓
                         </div>
@@ -190,13 +180,8 @@ export function MobileChatRoomCircles({
                     <p className="text-xs text-muted-foreground">{room.description}</p>
                     <div className="flex items-center gap-1 text-xs">
                       <Users className="w-3 h-3" />
-                      <span>{room.activeUsers} active</span>
+                      <span>0 active</span>
                     </div>
-                    {room.matchScore && (
-                      <Badge variant="outline" className={`text-xs ${room.matchScore > 70 ? 'bg-green-500/10 text-green-500' : ''}`}>
-                        {room.matchScore}% match
-                      </Badge>
-                    )}
                   </div>
                 </TooltipContent>
               </Tooltip>
