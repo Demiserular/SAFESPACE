@@ -1,4 +1,4 @@
-/* Base container for all loaders with glass effect */
+/* Base container for all loaders - transparent with blurred background */
 .loader-container {
   display: flex;
   flex-direction: column;
@@ -9,42 +9,14 @@
   position: fixed;
   top: 0;
   left: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 9999;
 }
 
-/* Glass card container for the loader content */
-.loader-container::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 200px;
-  height: 200px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  z-index: -1;
-}
-
 .loader-message {
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
-  color: rgba(0, 0, 0, 0.8);
-  text-align: center;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-  z-index: 1;
+  display: none;
 }
 
 /* Pulse Loader */
@@ -54,16 +26,11 @@
 }
 
 .pulse-circle {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  background: rgba(80, 80, 80, 0.7);
+  box-shadow: 0 0 30px rgba(80, 80, 80, 0.5);
   animation: pulse 1.5s ease-in-out infinite;
 }
 
@@ -90,16 +57,11 @@
 }
 
 .bounce-circle {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  background: rgba(80, 80, 80, 0.7);
+  box-shadow: 0 0 15px rgba(80, 80, 80, 0.4);
   animation: bounce 1.4s infinite ease-in-out both;
 }
 
@@ -112,10 +74,12 @@
 }
 
 @keyframes bounce {
-  0%, 80%, 100% { 
+  0%,
+  80%,
+  100% {
     transform: scale(0);
   }
-  40% { 
+  40% {
     transform: scale(1);
   }
 }
@@ -130,16 +94,11 @@
 }
 
 .wave-bar {
-  width: 4px;
-  height: 16px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  width: 5px;
+  height: 20px;
+  background: rgba(80, 80, 80, 0.7);
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(80, 80, 80, 0.4);
   animation: wave 1.2s infinite ease-in-out;
 }
 
@@ -148,7 +107,7 @@
 }
 
 .wave-bar:nth-child(3) {
-  animation-delay: -1.0s;
+  animation-delay: -1s;
 }
 
 .wave-bar:nth-child(4) {
@@ -160,7 +119,9 @@
 }
 
 @keyframes wave {
-  0%, 40%, 100% {
+  0%,
+  40%,
+  100% {
     transform: scaleY(0.4);
   }
   20% {
@@ -179,15 +140,11 @@
 .spin-circle {
   width: 100%;
   height: 100%;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-top: 2px solid rgba(255, 255, 255, 0.8);
+  border: 3px solid rgba(80, 80, 80, 0.3);
+  border-top: 3px solid rgba(80, 80, 80, 0.9);
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: transparent;
+  box-shadow: 0 0 20px rgba(80, 80, 80, 0.3);
   animation: spin 1s linear infinite;
 }
 
@@ -208,16 +165,11 @@
 }
 
 .dots-circle {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  background: rgba(80, 80, 80, 0.7);
+  box-shadow: 0 0 12px rgba(80, 80, 80, 0.4);
   animation: dots 1.4s infinite ease-in-out both;
 }
 
@@ -230,11 +182,13 @@
 }
 
 @keyframes dots {
-  0%, 80%, 100% { 
+  0%,
+  80%,
+  100% {
     transform: scale(0.6);
     opacity: 0.6;
   }
-  40% { 
+  40% {
     transform: scale(1);
     opacity: 1;
   }
@@ -242,17 +196,18 @@
 
 /* Progress Loader */
 .loader-progress {
-  width: 80px;
-  height: 2px;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 1px;
+  width: 100px;
+  height: 3px;
+  background-color: rgba(80, 80, 80, 0.3);
+  border-radius: 2px;
   overflow: hidden;
+  box-shadow: 0 0 15px rgba(80, 80, 80, 0.3);
 }
 
 .progress-bar {
   height: 100%;
   width: 0;
-  background-color: #000;
+  background-color: rgba(80, 80, 80, 0.8);
   animation: progress 1.5s infinite ease-in-out;
 }
 

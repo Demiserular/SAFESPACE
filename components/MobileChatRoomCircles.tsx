@@ -104,24 +104,24 @@ export function MobileChatRoomCircles({
   const getRoomIcon = (room: ChatRoom) => {
     const categoryStyle = getCategoryStyle(room.category);
     
-    if (room.isPrivate) {
-      return <Lock className="w-5 h-5 text-white" />;
+    if (room.is_private) {
+      return <Lock className="w-4 h-4 text-white" />;
     }
     
     if (categoryStyle.icon && categoryStyle.icon !== "#") {
-      return <span className="text-lg">{categoryStyle.icon}</span>;
+      return <span className="text-base">{categoryStyle.icon}</span>;
     }
     
-    return <Hash className="w-5 h-5 text-white" />;
+    return <Hash className="w-4 h-4 text-white" />;
   };
 
   return (
-    <div className="w-full mb-4">
-      <h2 className="text-lg font-semibold mb-3 px-4">Available Rooms</h2>
+    <div className="w-full mb-4 pt-2">
+      <h2 className="text-base font-semibold mb-4 px-4">Available Rooms</h2>
       
       <div 
         ref={scrollContainerRef}
-        className="flex overflow-x-auto pb-4 px-4 hide-scrollbar snap-x snap-mandatory"
+        className="flex overflow-x-auto pb-4 pt-2 px-4 hide-scrollbar snap-x snap-mandatory"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleDragEnd}
@@ -140,15 +140,15 @@ export function MobileChatRoomCircles({
                 <TooltipTrigger asChild>
                   <motion.div
                     id={`room-circle-${room.id}`}
-                    className={`flex-shrink-0 snap-center mx-2 first:ml-0 last:mr-0 cursor-pointer touch-manipulation`}
+                    className={`flex-shrink-0 snap-center mx-3 first:ml-0 last:mr-0 cursor-pointer touch-manipulation`}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => onRoomSelect(room.id)}
                   >
                     <div 
-                      className={`relative flex items-center justify-center rounded-full w-16 h-16 ${categoryStyle.bg} ${
+                      className={`relative flex items-center justify-center rounded-full w-14 h-14 ${categoryStyle.bg} ${
                         isSelected 
-                          ? 'ring-4 ring-primary ring-offset-2 ring-offset-background' 
-                          : 'ring-1 ring-border'
+                          ? 'ring-3 ring-primary ring-offset-2 ring-offset-background' 
+                          : ''
                       }`}
                     >
                       {getRoomIcon(room)}
@@ -169,7 +169,7 @@ export function MobileChatRoomCircles({
                     </div>
                     
                     {/* Room name (truncated) */}
-                    <div className="mt-1 text-xs text-center w-16 truncate">
+                    <div className="mt-2 text-[11px] text-center w-14 truncate text-muted-foreground">
                       {room.name.split(' ')[0]}
                     </div>
                   </motion.div>

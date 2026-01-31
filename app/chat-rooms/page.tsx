@@ -323,22 +323,22 @@ export default function ChatRooms() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="container mx-auto p-4 sm:p-5 lg:p-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">Chat Rooms</h1>
-            <p className="text-muted-foreground text-base sm:text-lg">Connect with peers who share your interests</p>
-        </div>
-          <div className="flex gap-3 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Chat Rooms</h1>
+            <p className="text-muted-foreground text-sm mt-1">Connect with peers who share your interests</p>
+          </div>
+          <div className="flex gap-2 w-full sm:w-auto">
             <JoinPrivateRoomDialog onJoinRoom={handleJoinPrivateRoom} />
-          <CreateRoomDialog setChatRooms={setChatRooms} onRoomCreation={handleRoomCreation} />
+            <CreateRoomDialog setChatRooms={setChatRooms} onRoomCreation={handleRoomCreation} />
+          </div>
         </div>
-      </div>
 
         {/* Mobile Chat Room Circles */}
         {isMobile && (
-          <div className="mb-6">
+          <div className="mb-5">
             <MobileChatRoomCircles 
               rooms={chatRooms}
               selectedRoomId={selectedRoom?.id || null}
@@ -347,98 +347,89 @@ export default function ChatRooms() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
-          {/* Chat Rooms List - Desktop Only */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Chat Rooms List - Desktop Only - Compact sidebar */}
           {!isMobile && (
-            <div className="lg:col-span-1">
-              <div className="bg-card rounded-xl shadow-lg border border-border p-6">
-                <h2 className="text-xl font-semibold mb-6 flex items-center gap-3 text-foreground">
-                  <Hash className="w-5 h-5 text-muted-foreground" />
-                  Available Rooms
+            <div className="lg:col-span-3">
+              <div className="bg-card rounded-lg shadow border border-border p-3 lg:sticky lg:top-4">
+                <h2 className="text-sm font-semibold mb-3 flex items-center gap-2 text-foreground">
+                  <Hash className="w-4 h-4 text-muted-foreground" />
+                  Rooms ({chatRooms.length})
                 </h2>
-                <div className="space-y-4">
+                <div className="space-y-2 max-h-[calc(100vh-180px)] overflow-y-auto pr-1">
                   {chatRooms.map((room) => (
-                    <Card
+                    <div
                       key={room.id}
-                      className={`cursor-pointer transition-all duration-300 hover:shadow-lg border-2 ${
+                      className={`p-2.5 rounded-lg border cursor-pointer transition-all duration-200 ${
                         selectedRoom?.id === room.id
-                          ? 'border-primary bg-accent shadow-lg'
-                          : 'border-border hover:border-border/60 bg-card'
+                          ? 'border-primary bg-accent/50 shadow-sm'
+                          : 'border-border/50 bg-card hover:border-primary/30 hover:bg-accent/30'
                       }`}
                       onClick={() => openChatInterface(room.id)}
                     >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                              <span className="truncate">{room.name}</span>
-                            </CardTitle>
-                            <CardDescription className="text-xs text-muted-foreground mt-2 line-clamp-2">
-                              {room.description}
-                            </CardDescription>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground ml-2">
-                            <Users className="w-3 h-3" />
-                            <span className="font-medium">0</span>
-                          </div>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-xs font-medium truncate text-foreground">
+                            {room.name}
+                          </h3>
+                          <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">
+                            {room.description}
+                          </p>
                         </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {room.matchScore && room.matchScore > 0 && (
-                              <div className="flex items-center gap-1">
-                                <Target className="w-3 h-3 text-primary" />
-                                <span className="text-xs text-primary font-medium">
-                                  {room.matchScore}% match
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex gap-1">
-                            {room.isPrivate && room.roomCode && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleShareRoom(room.id);
-                                }}
-                                className="h-7 w-7 p-0 hover:bg-accent"
-                              >
-                                <Share className="w-3 h-3 text-muted-foreground" />
-                              </Button>
-                            )}
-                            {room.createdBy === activeUsername && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteRoom(room.id);
-                                }}
-                                className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                disabled={deletingRoom === room.id}
-                              >
-                                {deletingRoom === room.id ? (
-                                  <Loader className="w-3 h-3" />
-                                ) : (
-                                  <Trash className="w-3 h-3" />
-                                )}
-                              </Button>
-                            )}
-                          </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {room.isPrivate && room.roomCode && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleShareRoom(room.id);
+                              }}
+                              className="h-5 w-5 p-0"
+                            >
+                              <Share className="w-2.5 h-2.5 text-muted-foreground" />
+                            </Button>
+                          )}
+                          {room.createdBy === activeUsername && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteRoom(room.id);
+                              }}
+                              className="h-5 w-5 p-0 text-destructive hover:text-destructive"
+                              disabled={deletingRoom === room.id}
+                            >
+                              {deletingRoom === room.id ? (
+                                <Loader className="w-2.5 h-2.5" />
+                              ) : (
+                                <Trash className="w-2.5 h-2.5" />
+                              )}
+                            </Button>
+                          )}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <Badge variant="secondary" className="text-[9px] h-4 px-1">
+                          {room.category || 'General'}
+                        </Badge>
+                        {room.matchScore && room.matchScore > 0 && (
+                          <span className="text-[9px] text-primary flex items-center gap-0.5">
+                            <Target className="w-2.5 h-2.5" />
+                            {room.matchScore}%
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Chat Interface */}
-          <div className="lg:col-span-3">
+          {/* Chat Interface - Takes more space */}
+          <div className="lg:col-span-9">
             {selectedRoom ? (
               <ChatRoom
                 room={selectedRoom}
@@ -450,10 +441,10 @@ export default function ChatRooms() {
                 activeUsername={activeUsername}
               />
             ) : (
-              <div className="bg-card rounded-xl shadow-lg border border-border p-8 sm:p-12 text-center h-[600px] flex flex-col items-center justify-center">
-                <MessageSquare className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
-                <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-3">Select a Chat Room</h3>
-                <p className="text-muted-foreground text-base sm:text-lg max-w-md">Choose a room from the list to start chatting with others who share your interests</p>
+              <div className="bg-card rounded-lg shadow border border-border p-6 text-center h-[500px] flex flex-col items-center justify-center">
+                <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">Select a Chat Room</h3>
+                <p className="text-muted-foreground text-sm max-w-sm">Choose a room from the list to start chatting</p>
               </div>
             )}
           </div>
@@ -746,7 +737,7 @@ function JoinPrivateRoomDialog({ onJoinRoom }: { onJoinRoom: (roomCode: string) 
                 value={roomCode}
                 onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
                 placeholder="Enter 6-digit room code"
-                className="text-sm font-mono text-center text-lg border-border focus:border-primary focus:ring-primary"
+                className="font-mono text-center text-lg border-border focus:border-primary focus:ring-primary"
                 maxLength={6}
                 required
               />

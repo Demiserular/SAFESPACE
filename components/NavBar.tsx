@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HeartPulse, LogIn, UserPlus, User, Settings, LogOut } from "lucide-react";
+import { HeartPulse, LogIn, UserPlus, User, Settings, LogOut, PenSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -92,7 +92,6 @@ export function NavBar() {
             </Link>
           </Button>
 
-
           <Button asChild variant="ghost" size="sm" className="h-9 px-3">
             <Link
               href="/posts"
@@ -102,6 +101,29 @@ export function NavBar() {
                 }`}
             >
               Posts
+            </Link>
+          </Button>
+
+          <Button asChild variant="ghost" size="sm" className="h-9 px-3">
+            <Link
+              href="/ai-support"
+              className={`flex items-center gap-2 text-sm font-medium transition-colors ${isActive("/ai-support")
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              <HeartPulse className="h-4 w-4" />
+              AI Support
+            </Link>
+          </Button>
+        </div>
+
+        {/* Create Post Button */}
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm" className="h-9">
+            <Link href="/create-post" className="flex items-center gap-2">
+              <PenSquare className="h-4 w-4" />
+              Create Post
             </Link>
           </Button>
         </div>

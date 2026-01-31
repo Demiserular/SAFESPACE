@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
-import { Heart, MessageSquare, Flag, Share2, HeartPulse } from 'lucide-react'
+import { Heart, MessageSquare, Flag, Share2 } from 'lucide-react'
 import { getPosts } from '@/lib/api_routes'
 import { createReaction, deleteReaction, getReactions } from '@/lib/api_routes'
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth'
@@ -162,52 +162,42 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-6 sm:py-8 max-w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl">
-      <header className="mb-6 sm:mb-8 text-center">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Safe Space</h1>
-        <p className="text-muted-foreground text-sm sm:text-base">An anonymous community for support and connection</p>
-        <div className="flex justify-center mt-4">
-          <Button className="bg-primary/10 hover:bg-primary/20 text-primary touch-manipulation" asChild>
-            <Link href="/ai-support" className="flex items-center gap-2">
-              <HeartPulse className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="text-sm sm:text-base">24/7 AI Emotional Support</span>
-            </Link>
-          </Button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-background pb-20 md:pb-0 pt-16 md:pt-0">
+      {/* Main Content - Posts focused */}
+      <div className="container mx-auto px-4 py-5 sm:py-6 lg:px-8 max-w-5xl">
 
-      <div className="justify-end mb-4 hidden sm:flex">
-        <Button asChild className="touch-manipulation">
-          <Link href="/create-post">Create Post</Link>
-        </Button>
-      </div>
+        {/* Posts Feed */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <div className="flex items-center justify-between mb-5 gap-2 overflow-x-auto pb-1">
+            <TabsList className="h-10 p-1 w-full sm:w-auto">
+              <TabsTrigger value="all" className="text-xs sm:text-sm h-8 px-3 sm:px-4">All</TabsTrigger>
+              <TabsTrigger value="depression" className="text-xs sm:text-sm h-8 px-3 sm:px-4">Depression</TabsTrigger>
+              <TabsTrigger value="career" className="text-xs sm:text-sm h-8 px-3 sm:px-4">Career</TabsTrigger>
+              <TabsTrigger value="relationships" className="text-xs sm:text-sm h-8 px-3 sm:px-4">Relationships</TabsTrigger>
+            </TabsList>
+          </div>
 
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 mb-6 sm:mb-8 h-auto">
-          <TabsTrigger value="all" className="text-xs sm:text-sm py-2 sm:py-3">All</TabsTrigger>
-          <TabsTrigger value="depression" className="text-xs sm:text-sm py-2 sm:py-3">Depression Help</TabsTrigger>
-          <TabsTrigger value="career" className="text-xs sm:text-sm py-2 sm:py-3">Career Stress</TabsTrigger>
-          <TabsTrigger value="relationships" className="text-xs sm:text-sm py-2 sm:py-3">Relationship Advice</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value={activeTab} className="space-y-4">
-          {filteredPosts.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No posts found in this category.</p>
-              <Button asChild className="mt-4">
-                <Link href="/create-post">Create the first post</Link>
-              </Button>
+          <TabsContent value={activeTab} className="mt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {filteredPosts.length === 0 ? (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-muted-foreground text-sm">No posts found in this category.</p>
+                  <Button asChild className="mt-4" size="sm">
+                    <Link href="/create-post">Create the first post</Link>
+                  </Button>
+                </div>
+              ) : (
+                filteredPosts.map((post) => (
+                  <PostCard 
+                    key={post.id} 
+                    post={post} 
+                  />
+                ))
+              )}
             </div>
-          ) : (
-            filteredPosts.map((post) => (
-              <PostCard 
-                key={post.id} 
-                post={post} 
-              />
-            ))
-          )}
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   )
 }
@@ -352,16 +342,16 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
   }, [user, userReactions, reactionCounts, post.id, haptic])
 
   return (
-    <Card className="hover:shadow-md transition-shadow card-optimized">
-      <CardHeader className="p-4 sm:p-6">
+    <Card className="hover:shadow-md transition-shadow card-optimized h-full flex flex-col">
+      <CardHeader className="p-4 pb-3">
         <div className="flex justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-base sm:text-lg line-clamp-2 responsive-text">{post.title}</CardTitle>
-            <CardDescription className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-2">
-              <span className="bg-muted px-2 py-1 rounded-full text-xs">
+            <CardTitle className="text-sm sm:text-base font-semibold line-clamp-2 leading-snug">{post.title}</CardTitle>
+            <CardDescription className="flex items-center gap-2 mt-2 flex-wrap">
+              <span className="bg-muted px-2 py-0.5 rounded text-[11px]">
                 {post.anonymous_username || "Anonymous"}
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-[11px] text-muted-foreground">
                 {(() => {
                   const now = new Date();
                   const postDate = new Date(post.created_at);
@@ -371,21 +361,21 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
                   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
                   
                   if (diffInMinutes < 1) return "just now";
-                  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-                  if (diffInHours < 24) return `${diffInHours}h ago`;
-                  if (diffInDays < 7) return `${diffInDays}d ago`;
+                  if (diffInMinutes < 60) return `${diffInMinutes}m`;
+                  if (diffInHours < 24) return `${diffInHours}h`;
+                  if (diffInDays < 7) return `${diffInDays}d`;
                   return postDate.toLocaleDateString();
                 })()}
               </span>
-              <span className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs">
-                {post.category || "General Support"}
+              <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-[11px]">
+                {post.category || "Support"}
               </span>
             </CardDescription>
           </div>
           <Button 
             variant="ghost" 
             size="icon" 
-            className="flex-shrink-0 touch-friendly focus-optimized"
+            className="flex-shrink-0 h-7 w-7"
             onClick={() => {
               if (user) {
                 haptic.light()
@@ -396,14 +386,14 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
               }
             }}
           >
-            <Flag className="h-4 w-4" />
+            <Flag className="h-3 w-3" />
             <span className="sr-only">Flag post</span>
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-4 sm:p-6 pt-0">
-        <div className="space-y-3">
-          <p className={`text-sm sm:text-base leading-relaxed whitespace-pre-line responsive-text ${
+      <CardContent className="p-4 pt-0 flex-1 flex flex-col">
+        <div className="flex-1">
+          <p className={`text-xs sm:text-sm leading-relaxed text-muted-foreground ${
             !isExpanded && shouldShowMoreButton ? 'line-clamp-3' : ''
           }`}>
             {post.content}
@@ -417,54 +407,53 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
                 haptic.light()
                 setIsExpanded(!isExpanded)
               }}
-              className="h-6 px-2 text-xs text-primary hover:text-primary/80 p-0 touch-friendly"
+              className="h-6 px-2 text-xs text-primary hover:text-primary/80 mt-1"
             >
-              {isExpanded ? 'Show less' : 'Show more'}
+              {isExpanded ? 'Show less' : 'Read more'}
             </Button>
           )}
+        </div>
 
-          {/* Post Actions */}
-          <div className="flex items-center justify-between pt-2 border-t border-border/30">
-            <div className="flex items-center gap-1">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="flex gap-1.5 items-center h-9 px-3 hover:bg-transparent transition-colors rounded-lg text-muted-foreground touch-friendly group"
-                onClick={() => handleReaction('heart')}
-              >
-                <Heart className={`h-4 w-4 transition-colors ${
-                  userReactions.heart 
-                    ? 'fill-red-500 text-red-500' 
-                    : 'group-hover:text-red-400'
-                }`} />
-                <span className={`text-sm font-medium ${
-                  userReactions.heart ? 'text-red-500' : ''
-                }`}>{reactionCounts.hearts}</span>
-              </Button>
-              
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="flex gap-1.5 items-center h-9 px-3 hover:bg-transparent transition-colors rounded-lg text-muted-foreground touch-friendly group"
-                onClick={handleShare}
-              >
-                <Share2 className="h-4 w-4 group-hover:text-blue-500 transition-colors" />
-                <span className="text-sm font-medium group-hover:text-blue-500">Share</span>
-              </Button>
-            </div>
+        {/* Post Actions */}
+        <div className="flex items-center justify-between pt-3 mt-3 border-t border-border/30">
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="flex gap-1.5 items-center h-8 px-3 hover:bg-transparent transition-colors text-muted-foreground group"
+              onClick={() => handleReaction('heart')}
+            >
+              <Heart className={`h-4 w-4 transition-colors ${
+                userReactions.heart 
+                  ? 'fill-red-500 text-red-500' 
+                  : 'group-hover:text-red-400'
+              }`} />
+              <span className={`text-sm ${
+                userReactions.heart ? 'text-red-500' : ''
+              }`}>{reactionCounts.hearts}</span>
+            </Button>
             
             <Button 
-              variant="outline" 
+              variant="ghost" 
               size="sm" 
-              asChild 
-              className="flex gap-1.5 items-center h-9 xs:px-3 sm:px-4 hover:bg-primary/5 transition-all rounded-full border-primary/20 text-primary hover:text-primary/80 font-medium touch-friendly focus-optimized"
+              className="flex gap-1.5 items-center h-8 px-3 hover:bg-transparent transition-colors text-muted-foreground group"
+              onClick={handleShare}
             >
-              <Link href={`/post/${post.id}`}>
-                <MessageSquare className="h-4 w-4 xs:h-5 xs:w-5" />
-                <span className="hidden xs:inline text-sm">Your thoughts</span>
-              </Link>
+              <Share2 className="h-4 w-4 group-hover:text-blue-500 transition-colors" />
             </Button>
           </div>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            asChild 
+            className="flex gap-1.5 items-center h-8 px-3 hover:bg-primary/5 transition-all rounded-full border-primary/20 text-primary text-xs"
+          >
+            <Link href={`/post/${post.id}`}>
+              <MessageSquare className="h-4 w-4" />
+              <span>Reply</span>
+            </Link>
+          </Button>
         </div>
       </CardContent>
     </Card>
