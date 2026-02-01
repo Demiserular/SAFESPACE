@@ -19,7 +19,8 @@ body,
 
 /* App-like page transitions */
 .page-transition {
-  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -63,7 +64,7 @@ iframe {
 }
 
 .threadflow-thread:hover {
-  background: hsl(var(--accent) / 0.3);
+  background: hsl(var(--secondary) / 0.5);
 }
 
 /* Thread depth indicators with glow effect */
@@ -121,7 +122,9 @@ iframe {
   background: currentColor;
   opacity: 0.3;
   transform: translate(-50%, -50%);
-  transition: width 0.3s, height 0.3s;
+  transition:
+    width 0.3s,
+    height 0.3s;
 }
 
 .threadflow-action-btn:active::before {
@@ -191,7 +194,7 @@ iframe {
   }
 
   .threadflow-thread:hover {
-    background: hsl(var(--accent) / 0.5);
+    background: hsl(var(--secondary) / 0.6);
   }
 }
 
@@ -290,8 +293,16 @@ div.mobile-navbar-fixed,
 
 /* Body modifications for stable viewport */
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
@@ -299,7 +310,8 @@ body {
   line-height: 1.6;
   letter-spacing: -0.01em;
   /* Smooth theme transitions */
-  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -536,16 +548,18 @@ a,
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     /* Professional mobile-style feedback */
-    transition: background-color 0.15s ease, transform 0.1s ease;
+    transition:
+      background-color 0.15s ease,
+      transform 0.1s ease;
   }
 
   .touch-friendly:hover {
-    background-color: hsl(var(--accent) / 0.5);
+    background-color: hsl(var(--secondary));
   }
 
   .touch-friendly:active {
     transform: scale(0.98);
-    background-color: hsl(var(--accent) / 0.8);
+    background-color: hsl(var(--secondary) / 0.8);
     transition: none;
   }
 
@@ -554,16 +568,18 @@ a,
     position: relative;
     border-radius: 0.5rem;
     padding: 0.5rem;
-    transition: background-color 0.15s ease, transform 0.1s ease;
+    transition:
+      background-color 0.15s ease,
+      transform 0.1s ease;
   }
 
   .icon-button:hover {
-    background-color: hsl(var(--accent) / 0.6);
+    background-color: hsl(var(--secondary));
   }
 
   .icon-button:active {
     transform: scale(0.98);
-    background-color: hsl(var(--accent));
+    background-color: hsl(var(--secondary) / 0.8);
     transition: none;
   }
 
@@ -630,124 +646,124 @@ a,
 
 @layer base {
   :root {
-    /* Light mode - Professional cream whites with subtle blue-green hints */
+    /* Light mode - Professional design with WCAG AA contrast compliance */
     --background: 210 20% 98%; /* Soft cream white */
-    --foreground: 215 25% 15%; /* Deep blue-gray text */
+    --foreground: 215 30% 12%; /* Deep blue-gray text - darker for better readability */
     --card: 210 25% 99%; /* Pure card background */
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 215 30% 12%;
     --popover: 210 25% 99%;
-    --popover-foreground: 215 25% 15%;
-    --primary: 195 85% 35%; /* Professional ocean blue #1e7db8 */
-    --primary-foreground: 210 25% 99%;
-    --secondary: 210 15% 92%; /* Light gray-blue */
-    --secondary-foreground: 215 25% 25%;
-    --muted: 210 12% 94%; /* Very light neutral */
-    --muted-foreground: 215 15% 45%; /* Medium gray for subtle text */
-    --accent: 175 35% 88%; /* Soft teal accent */
-    --accent-foreground: 195 85% 25%;
-    --destructive: 0 84% 60%; /* Red for errors */
-    --destructive-foreground: 0 0% 98%;
-    --border: 210 12% 87%; /* Subtle borders */
-    --input: 210 12% 90%; /* Input backgrounds */
-    --ring: 195 85% 35%; /* Focus rings */
-    --success: 160 75% 35%; /* Success green */
-    --warning: 35 95% 55%; /* Warning amber */
-    --info: 210 85% 55%; /* Info blue */
-    --chart-1: 195 85% 35%;
-    --chart-2: 175 70% 40%;
-    --chart-3: 160 60% 45%;
-    --chart-4: 145 50% 50%;
-    --chart-5: 130 40% 55%;
+    --popover-foreground: 215 30% 12%;
+    --primary: 195 85% 32%; /* Slightly darker ocean blue for better contrast */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 18% 88%; /* Slightly more saturated for visibility */
+    --secondary-foreground: 215 30% 18%; /* Darker for better readability */
+    --muted: 210 15% 92%; /* Slightly more visible */
+    --muted-foreground: 215 20% 38%; /* MUCH darker - key fix for readability */
+    --accent: 175 30% 92%; /* Lighter accent for better text contrast on hover */
+    --accent-foreground: 195 85% 22%; /* Dark accent text */
+    --destructive: 0 84% 55%; /* Slightly darker red */
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 15% 82%; /* Slightly more visible borders */
+    --input: 210 15% 88%; /* Slightly darker input backgrounds */
+    --ring: 195 85% 32%; /* Focus rings */
+    --success: 160 75% 32%; /* Success green */
+    --warning: 35 95% 50%; /* Warning amber - darker */
+    --info: 210 85% 50%; /* Info blue - darker */
+    --chart-1: 195 85% 32%;
+    --chart-2: 175 70% 38%;
+    --chart-3: 160 60% 42%;
+    --chart-4: 145 50% 48%;
+    --chart-5: 130 40% 52%;
     --radius: 0.75rem;
     /* Sidebar colors */
     --sidebar-background: 210 25% 97%;
-    --sidebar-foreground: 215 25% 20%;
-    --sidebar-primary: 195 85% 35%;
-    --sidebar-primary-foreground: 210 25% 99%;
-    --sidebar-accent: 175 35% 90%;
-    --sidebar-accent-foreground: 195 85% 25%;
-    --sidebar-border: 210 12% 85%;
-    --sidebar-ring: 195 85% 35%;
+    --sidebar-foreground: 215 30% 15%;
+    --sidebar-primary: 195 85% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 175 30% 92%;
+    --sidebar-accent-foreground: 195 85% 22%;
+    --sidebar-border: 210 15% 82%;
+    --sidebar-ring: 195 85% 32%;
   }
 
   .dark {
-    /* Dark mode - Rich dark blues with professional contrast */
-    --background: 215 30% 8%; /* Deep blue-gray background */
-    --foreground: 210 20% 92%; /* Light blue-white text */
-    --card: 215 25% 10%; /* Slightly lighter cards */
-    --card-foreground: 210 20% 92%;
-    --popover: 215 25% 10%;
-    --popover-foreground: 210 20% 92%;
-    --primary: 190 75% 55%; /* Bright cyan-blue #2dd4bf */
-    --primary-foreground: 215 30% 8%;
-    --secondary: 215 20% 15%; /* Dark secondary */
-    --secondary-foreground: 210 20% 85%;
-    --muted: 215 15% 18%; /* Muted backgrounds */
-    --muted-foreground: 210 10% 60%; /* Muted text */
-    --accent: 175 60% 25%; /* Deep teal accent */
-    --accent-foreground: 190 75% 75%;
-    --destructive: 0 70% 55%; /* Softer red for dark mode */
-    --destructive-foreground: 0 0% 98%;
-    --border: 215 15% 20%; /* Subtle dark borders */
-    --input: 215 15% 20%; /* Input backgrounds */
-    --ring: 190 75% 55%; /* Focus rings */
-    --success: 160 65% 45%; /* Success green */
-    --warning: 35 85% 60%; /* Warning amber */
-    --info: 210 75% 65%; /* Info blue */
-    --chart-1: 190 75% 55%;
-    --chart-2: 175 65% 50%;
-    --chart-3: 160 55% 45%;
+    /* Dark mode - Rich dark blues with excellent contrast */
+    --background: 220 25% 7%; /* Deeper, richer background */
+    --foreground: 210 25% 95%; /* Brighter text for better readability */
+    --card: 220 22% 10%; /* Slightly lighter cards */
+    --card-foreground: 210 25% 95%;
+    --popover: 220 22% 10%;
+    --popover-foreground: 210 25% 95%;
+    --primary: 185 70% 52%; /* Brighter cyan for better visibility */
+    --primary-foreground: 220 25% 7%;
+    --secondary: 220 18% 18%; /* More visible secondary */
+    --secondary-foreground: 210 20% 88%;
+    --muted: 220 15% 15%; /* More visible muted backgrounds */
+    --muted-foreground: 210 15% 68%; /* MUCH brighter - key fix for dark mode readability */
+    --accent: 175 50% 18%; /* More saturated accent */
+    --accent-foreground: 185 65% 80%;
+    --destructive: 0 65% 58%; /* Brighter red for dark mode */
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 22%; /* More visible borders */
+    --input: 220 15% 18%; /* Input backgrounds */
+    --ring: 185 70% 52%; /* Focus rings */
+    --success: 160 60% 50%; /* Brighter success green */
+    --warning: 35 85% 58%; /* Brighter warning amber */
+    --info: 210 75% 62%; /* Brighter info blue */
+    --chart-1: 185 70% 52%;
+    --chart-2: 175 60% 48%;
+    --chart-3: 160 50% 44%;
     --chart-4: 145 45% 40%;
-    --chart-5: 130 35% 35%;
+    --chart-5: 130 35% 36%;
     /* Sidebar colors */
-    --sidebar-background: 215 25% 12%;
-    --sidebar-foreground: 210 20% 88%;
-    --sidebar-primary: 190 75% 55%;
-    --sidebar-primary-foreground: 215 30% 8%;
-    --sidebar-accent: 175 60% 20%;
-    --sidebar-accent-foreground: 190 75% 70%;
-    --sidebar-border: 215 15% 18%;
-    --sidebar-ring: 190 75% 55%;
+    --sidebar-background: 220 22% 11%;
+    --sidebar-foreground: 210 20% 92%;
+    --sidebar-primary: 185 70% 52%;
+    --sidebar-primary-foreground: 220 25% 7%;
+    --sidebar-accent: 175 50% 18%;
+    --sidebar-accent-foreground: 185 65% 80%;
+    --sidebar-border: 220 15% 20%;
+    --sidebar-ring: 185 70% 52%;
   }
 
   /* Color mode - Vibrant blue-green professional palette */
   .color {
-    --background: 185 40% 96%; /* Light blue-green background */
-    --foreground: 190 50% 12%; /* Deep teal text */
-    --card: 185 45% 98%; /* Clean card background */
-    --card-foreground: 190 50% 12%;
-    --popover: 185 45% 98%;
-    --popover-foreground: 190 50% 12%;
-    --primary: 175 85% 30%; /* Rich emerald-teal #0d9488 */
-    --primary-foreground: 185 45% 98%;
-    --secondary: 185 30% 88%; /* Light teal-gray */
-    --secondary-foreground: 190 50% 20%;
-    --muted: 185 25% 92%; /* Soft muted background */
-    --muted-foreground: 190 30% 40%; /* Medium teal text */
-    --accent: 165 60% 80%; /* Bright mint accent */
-    --accent-foreground: 175 85% 20%;
-    --destructive: 0 84% 60%; /* Red for errors */
-    --destructive-foreground: 0 0% 98%;
-    --border: 185 25% 82%; /* Subtle teal borders */
-    --input: 185 25% 85%; /* Input backgrounds */
-    --ring: 175 85% 30%; /* Focus rings */
-    --success: 155 75% 35%; /* Forest green */
-    --warning: 35 95% 55%; /* Warm amber */
-    --info: 195 85% 45%; /* Ocean blue */
-    --chart-1: 175 85% 30%;
-    --chart-2: 165 75% 35%;
-    --chart-3: 155 65% 40%;
-    --chart-4: 145 55% 45%;
-    --chart-5: 135 45% 50%;
+    --background: 180 35% 97%; /* Slightly warmer blue-green */
+    --foreground: 190 45% 10%; /* Deeper text */
+    --card: 180 40% 99%; /* Clean card background */
+    --card-foreground: 190 45% 10%;
+    --popover: 180 40% 99%;
+    --popover-foreground: 190 45% 10%;
+    --primary: 170 80% 28%; /* Richer emerald-teal */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 180 28% 86%; /* More visible secondary */
+    --secondary-foreground: 190 45% 18%;
+    --muted: 180 22% 91%; /* Soft muted background */
+    --muted-foreground: 190 30% 35%; /* Darker for better readability */
+    --accent: 165 45% 88%; /* Lighter accent for better text contrast */
+    --accent-foreground: 170 80% 18%;
+    --destructive: 0 84% 55%; /* Red for errors */
+    --destructive-foreground: 0 0% 100%;
+    --border: 180 22% 78%; /* More visible borders */
+    --input: 180 22% 84%; /* Input backgrounds */
+    --ring: 170 80% 28%; /* Focus rings */
+    --success: 155 70% 32%; /* Forest green */
+    --warning: 35 95% 48%; /* Warm amber - darker */
+    --info: 195 85% 42%; /* Ocean blue - darker */
+    --chart-1: 170 80% 28%;
+    --chart-2: 160 70% 33%;
+    --chart-3: 150 60% 38%;
+    --chart-4: 140 50% 43%;
+    --chart-5: 130 42% 48%;
     /* Sidebar colors */
-    --sidebar-background: 185 35% 94%;
-    --sidebar-foreground: 190 50% 15%;
-    --sidebar-primary: 175 85% 30%;
-    --sidebar-primary-foreground: 185 45% 98%;
-    --sidebar-accent: 165 60% 85%;
-    --sidebar-accent-foreground: 175 85% 20%;
-    --sidebar-border: 185 25% 80%;
-    --sidebar-ring: 175 85% 30%;
+    --sidebar-background: 180 32% 95%;
+    --sidebar-foreground: 190 45% 12%;
+    --sidebar-primary: 170 80% 28%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 165 45% 88%;
+    --sidebar-accent-foreground: 170 80% 18%;
+    --sidebar-border: 180 22% 78%;
+    --sidebar-ring: 170 80% 28%;
   }
 }
 
@@ -755,7 +771,8 @@ a,
   * {
     @apply border-border;
     /* Smooth transitions for all theme changes */
-    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transition:
+      background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
       color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
       border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
       box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -777,8 +794,11 @@ a,
   select,
   a,
   [role="button"] {
-    transition: background-color 0.15s ease, color 0.15s ease,
-      border-color 0.15s ease, transform 0.1s ease;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      border-color 0.15s ease,
+      transform 0.1s ease;
   }
 
   /* Professional button interactions */
@@ -812,7 +832,8 @@ a,
   /* Smooth card transitions */
   .card,
   [class*="card"] {
-    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transition:
+      background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
       border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
       box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -824,7 +845,11 @@ a,
   h4,
   h5,
   h6 {
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
       sans-serif;
     font-weight: 600;
     line-height: 1.3;

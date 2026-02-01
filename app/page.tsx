@@ -342,16 +342,16 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
   }, [user, userReactions, reactionCounts, post.id, haptic])
 
   return (
-    <Card className="hover:shadow-md transition-shadow card-optimized h-full flex flex-col">
+    <Card className="hover:shadow-md hover:border-primary/30 transition-all card-optimized h-full flex flex-col border-border">
       <CardHeader className="p-4 pb-3">
         <div className="flex justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-sm sm:text-base font-semibold line-clamp-2 leading-snug">{post.title}</CardTitle>
+            <CardTitle className="text-sm sm:text-base font-semibold line-clamp-2 leading-snug text-foreground">{post.title}</CardTitle>
             <CardDescription className="flex items-center gap-2 mt-2 flex-wrap">
-              <span className="bg-muted px-2 py-0.5 rounded text-[11px]">
+              <span className="bg-secondary px-2 py-0.5 rounded text-[11px] font-medium text-secondary-foreground">
                 {post.anonymous_username || "Anonymous"}
               </span>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-[11px] text-muted-foreground font-medium">
                 {(() => {
                   const now = new Date();
                   const postDate = new Date(post.created_at);
@@ -367,7 +367,7 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
                   return postDate.toLocaleDateString();
                 })()}
               </span>
-              <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-[11px]">
+              <span className="bg-primary/15 text-primary px-2 py-0.5 rounded text-[11px] font-medium">
                 {post.category || "Support"}
               </span>
             </CardDescription>
@@ -393,7 +393,7 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
       </CardHeader>
       <CardContent className="p-4 pt-0 flex-1 flex flex-col">
         <div className="flex-1">
-          <p className={`text-xs sm:text-sm leading-relaxed text-muted-foreground ${
+          <p className={`text-xs sm:text-sm leading-relaxed text-foreground/80 ${
             !isExpanded && shouldShowMoreButton ? 'line-clamp-3' : ''
           }`}>
             {post.content}
@@ -415,12 +415,12 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
         </div>
 
         {/* Post Actions */}
-        <div className="flex items-center justify-between pt-3 mt-3 border-t border-border/30">
+        <div className="flex items-center justify-between pt-3 mt-3 border-t border-border">
           <div className="flex items-center gap-1">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="flex gap-1.5 items-center h-8 px-3 hover:bg-transparent transition-colors text-muted-foreground group"
+              className="flex gap-1.5 items-center h-8 px-3 transition-colors text-foreground group"
               onClick={() => handleReaction('heart')}
             >
               <Heart className={`h-4 w-4 transition-colors ${
@@ -428,7 +428,7 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
                   ? 'fill-red-500 text-red-500' 
                   : 'group-hover:text-red-400'
               }`} />
-              <span className={`text-sm ${
+              <span className={`text-sm font-medium ${
                 userReactions.heart ? 'text-red-500' : ''
               }`}>{reactionCounts.hearts}</span>
             </Button>
@@ -436,10 +436,10 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="flex gap-1.5 items-center h-8 px-3 hover:bg-transparent transition-colors text-muted-foreground group"
+              className="flex gap-1.5 items-center h-8 px-3 transition-colors text-foreground group"
               onClick={handleShare}
             >
-              <Share2 className="h-4 w-4 group-hover:text-blue-500 transition-colors" />
+              <Share2 className="h-4 w-4 group-hover:text-primary transition-colors" />
             </Button>
           </div>
           
@@ -447,7 +447,7 @@ const PostCard = memo(function PostCard({ post }: { post: any }) {
             variant="outline" 
             size="sm" 
             asChild 
-            className="flex gap-1.5 items-center h-8 px-3 hover:bg-primary/5 transition-all rounded-full border-primary/20 text-primary text-xs"
+            className="flex gap-1.5 items-center h-8 px-3 transition-all rounded-full border-primary/30 text-primary text-xs font-medium hover:bg-primary/10"
           >
             <Link href={`/post/${post.id}`}>
               <MessageSquare className="h-4 w-4" />

@@ -109,7 +109,8 @@ export default function PostsPage() {
 
     try {
       // Get the session token
-      const { supabase } = await import('@/lib/supabase');
+      const { getSupabaseClient } = await import('@/lib/supabase');
+      const supabase = getSupabaseClient();
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session?.access_token) {
@@ -154,7 +155,8 @@ export default function PostsPage() {
 
     try {
       // Get the session token
-      const { supabase } = await import('@/lib/supabase');
+      const { getSupabaseClient } = await import('@/lib/supabase');
+      const supabase = getSupabaseClient();
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session?.access_token) {
@@ -219,24 +221,24 @@ export default function PostsPage() {
       {/* Posts Grid - Maximum Space Utilization */}
       <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
         {posts.map((post) => (
-          <Card key={post.id} className="hover:shadow-lg transition-all duration-200 relative overflow-hidden h-full flex flex-col">
+          <Card key={post.id} className="hover:shadow-lg hover:border-primary/30 transition-all duration-200 relative overflow-hidden h-full flex flex-col border-border">
             {/* Action buttons - Compact and Visible */}
             {user && isUserPost(post) && (
               <div className="absolute top-1.5 right-1.5 flex items-center gap-1 z-10">
                 <Button 
-                  variant="ghost" 
+                  variant="secondary" 
                   size="icon"
                   onClick={() => handleEditPost(post)}
-                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-background/95 backdrop-blur-sm hover:bg-muted shadow-md border"
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full shadow-md border"
                   title="Edit post"
                 >
                   <Edit className="w-4 h-4" />
                 </Button>
                 <Button 
-                  variant="ghost" 
+                  variant="destructive" 
                   size="icon"
                   onClick={() => handleDeletePost(post)}
-                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-background/95 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground text-destructive shadow-md border border-destructive/30"
+                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-full shadow-md"
                   title="Delete post"
                 >
                   <Trash2 className="w-4 h-4" />

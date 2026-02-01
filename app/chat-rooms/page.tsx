@@ -25,19 +25,12 @@ interface Message {
   timestamp: string;
 }
 
-interface ChatRoom {
-  id: number | string;
-  name: string;
-  description: string;
-  category?: string;
-  activeUsers: number;
+// Extended ChatRoom with UI-specific properties
+interface ChatRoom extends ChatRoomType {
+  active_users?: number;
   messages?: Message[];
   interests?: string[];
-  matchScore?: number;
-  isPrivate?: boolean;
-  roomCode?: string;
-  createdBy?: string;
-  maxUsers?: number;
+  match_score?: number;
 }
 
 // Interest tags for matching
@@ -51,11 +44,11 @@ const INTEREST_TAGS = [
 export default function ChatRooms() {
   const isMobile = useIsMobile();
   const [activeUsername, setActiveUsername] = useState('')
-  const [selectedRoom, setSelectedRoom] = useState<ChatRoomType | null>(null)
+  const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null)
   const [message, setMessage] = useState("")
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
-  const [chatRooms, setChatRooms] = useState<ChatRoomType[]>([])
+  const [chatRooms, setChatRooms] = useState<ChatRoom[]>([])
   const [deletingRoom, setDeletingRoom] = useState<string | null>(null);
   const [sharingRoom, setSharingRoom] = useState<string | null>(null);
   const [userInterests, setUserInterests] = useState<string[]>([]);
@@ -78,18 +71,11 @@ export default function ChatRooms() {
       try {
         const rooms = await ChatService.getChatRooms()
         // Map Supabase rooms to local ChatRoom type if needed
-        const mappedRooms = rooms.map(room => ({
-          id: room.id,
-          name: room.name,
-          description: room.description,
-          category: room.category,
-          activeUsers: 0, // Need to implement active user tracking
+        const mappedRooms: ChatRoom[] = rooms.map(room => ({
+          ...room,
+          active_users: 0,
           messages: [],
-          interests: [], // Add interest tags column to DB if needed
-          isPrivate: room.is_private,
-          roomCode: room.room_code,
-          createdBy: room.created_by,
-          maxUsers: room.max_users
+          interests: [],
         }))
         setChatRooms(mappedRooms)
       } catch (error) {
@@ -126,14 +112,8 @@ export default function ChatRooms() {
       if (room) {
         // Map the database room to the local ChatRoom interface
         const mappedRoom: ChatRoom = {
-          id: room.id,
-          name: room.name,
-          description: room.description,
-          category: room.category,
-          activeUsers: 0, // Placeholder
-          isPrivate: room.is_private,
-          roomCode: room.room_code,
-          maxUsers: room.max_users,
+          ...room,
+          active_users: 0,
           interests: [],
           messages: []
         };
@@ -157,16 +137,18 @@ export default function ChatRooms() {
         if (roomCode === "DEMO123") {
            // Keep the demo legacy logic for now just in case
             const privateRoom: ChatRoom = {
-              id: 999,
+              id: "demo-999",
               name: "Demo Private Room",
               description: "A private room for demonstration",
               category: "Private",
-              activeUsers: 3,
+              created_by: "demo",
+              created_at: new Date().toISOString(),
+              active_users: 3,
               interests: ["Student Life", "Anxiety"],
-              matchScore: 80,
-              isPrivate: true,
-              roomCode: "DEMO123",
-              maxUsers: 10,
+              match_score: 80,
+              is_private: true,
+              room_code: "DEMO123",
+              max_users: 10,
               messages: [
                 { id: 100, username: "PrivateUser", content: "Welcome to the private room!", timestamp: "2024-01-15T12:00:00Z" }
               ]
@@ -198,7 +180,7 @@ export default function ChatRooms() {
     if (chatRooms.length > 0 && !selectedRoom) {
       // Auto-select room with highest match score
       const bestMatch = chatRooms.reduce((best, current) => 
-        (current.matchScore || 0) > (best.matchScore || 0) ? current : best
+        (current.match_score || 0) > (best.match_score || 0) ? current : best
       );
       setSelectedRoom(bestMatch);
       setMessages(bestMatch.messages || []);
@@ -264,23 +246,23 @@ export default function ChatRooms() {
     }
   }
 
-  const handleDeleteRoom = async (roomId: number) => {
+  const handleDeleteRoom = async (roomId: string) => {
     setDeletingRoom(roomId);
 
     // Mock deletion
     setTimeout(() => {
       setChatRooms((prevRooms) => prevRooms.filter(room => room.id !== roomId));
-    setDeletingRoom(null);
+      setDeletingRoom(null);
     }, 1000);
   };
 
-  const handleShareRoom = (roomId: number) => {
+  const handleShareRoom = (roomId: string) => {
     setSharingRoom(roomId);
     const room = chatRooms.find(r => r.id === roomId);
-    if (room?.isPrivate && room?.roomCode) {
+    if (room?.is_private && room?.room_code) {
       // Copy room code to clipboard
-      navigator.clipboard.writeText(room.roomCode);
-      alert(`Room code copied: ${room.roomCode}`);
+      navigator.clipboard.writeText(room.room_code);
+      alert(`Room code copied: ${room.room_code}`);
     } else {
       // Share public room link
       const roomLink = `${window.location.origin}/chat/${roomId}`;
@@ -362,8 +344,8 @@ export default function ChatRooms() {
                       key={room.id}
                       className={`p-2.5 rounded-lg border cursor-pointer transition-all duration-200 ${
                         selectedRoom?.id === room.id
-                          ? 'border-primary bg-accent/50 shadow-sm'
-                          : 'border-border/50 bg-card hover:border-primary/30 hover:bg-accent/30'
+                          ? 'border-primary bg-primary/10 shadow-sm'
+                          : 'border-border bg-card hover:border-primary/40 hover:bg-secondary/60'
                       }`}
                       onClick={() => openChatInterface(room.id)}
                     >
@@ -377,7 +359,7 @@ export default function ChatRooms() {
                           </p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
-                          {room.isPrivate && room.roomCode && (
+                          {room.is_private && room.room_code && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -390,7 +372,7 @@ export default function ChatRooms() {
                               <Share className="w-2.5 h-2.5 text-muted-foreground" />
                             </Button>
                           )}
-                          {room.createdBy === activeUsername && (
+                          {room.created_by === activeUsername && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -411,13 +393,13 @@ export default function ChatRooms() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 mt-1.5">
-                        <Badge variant="secondary" className="text-[9px] h-4 px-1">
+                        <Badge variant="secondary" className="text-[9px] h-4 px-1.5">
                           {room.category || 'General'}
                         </Badge>
-                        {room.matchScore && room.matchScore > 0 && (
+                        {room.match_score && room.match_score > 0 && (
                           <span className="text-[9px] text-primary flex items-center gap-0.5">
                             <Target className="w-2.5 h-2.5" />
-                            {room.matchScore}%
+                            {room.match_score}%
                           </span>
                         )}
                       </div>
@@ -488,14 +470,10 @@ function InterestSelector({
         {INTEREST_TAGS.map((tag) => (
           <Button
             key={tag}
-            variant={interests.includes(tag) ? "default" : "outline"}
+            variant={interests.includes(tag) ? "default" : "secondary"}
             size="sm"
             onClick={() => toggleInterest(tag)}
-            className={`text-xs touch-manipulation transition-all ${
-              interests.includes(tag) 
-                ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                : 'border-border text-muted-foreground hover:bg-accent'
-            }`}
+            className="text-xs touch-manipulation transition-all"
           >
             {tag}
           </Button>
@@ -505,7 +483,7 @@ function InterestSelector({
         <Button variant="ghost" onClick={onSkip} className="text-sm text-muted-foreground hover:text-foreground">
           Skip for now
         </Button>
-        <Button onClick={handleSave} className="text-sm bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button onClick={handleSave} className="text-sm">
           Save Interests
         </Button>
       </div>
@@ -545,17 +523,10 @@ function CreateRoomDialog({ setChatRooms, onRoomCreation }: { setChatRooms: Reac
 
       // Map Supabase room to local ChatRoom interface
       const newRoom: ChatRoom = {
-        id: createdRoom.id,
-        name: createdRoom.name,
-        description: createdRoom.description,
-        category: createdRoom.category,
-        activeUsers: 0,
+        ...createdRoom,
+        active_users: 0,
         messages: [],
         interests: [],
-        isPrivate: createdRoom.is_private,
-        roomCode: createdRoom.room_code,
-        createdBy: createdRoom.created_by, 
-        maxUsers: createdRoom.max_users
       };
       
       onRoomCreation(newRoom);

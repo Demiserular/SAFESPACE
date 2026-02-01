@@ -1,4 +1,4 @@
-import { getSupabaseClient } from '@/lib/supabase';
+import { getSupabaseClient, getAuthenticatedSupabaseClient } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
 // UUID validation regex
@@ -38,6 +38,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     const token = authHeader.replace('Bearer ', '');
+
+    // Create authenticated client with user's token for RLS
+    const supabase = getAuthenticatedSupabaseClient(token);
 
     // Verify the user's session
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
@@ -90,6 +93,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     const token = authHeader.replace('Bearer ', '');
+
+    // Create authenticated client with user's token for RLS
+    const supabase = getAuthenticatedSupabaseClient(token);
 
     // Verify the user's session
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);

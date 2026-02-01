@@ -149,12 +149,12 @@ export default function DiscussionRoom({
                 </Avatar>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-sm">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="font-bold text-sm text-foreground">
                       {comment.author.username}
                     </span>
                     {comment.isAuthor && (
-                      <Badge variant="secondary" className="text-[10px] py-0">
+                      <Badge className="text-[9px] py-0 px-1.5 bg-gradient-to-r from-amber-400 to-orange-500 border-0">
                         OP
                       </Badge>
                     )}
@@ -163,20 +163,25 @@ export default function DiscussionRoom({
                     </span>
                   </div>
 
-                  <div className="bg-muted/50 rounded-2xl rounded-tl-none px-4 py-3 prose prose-sm dark:prose-invert max-w-none">
-                    <p className="text-sm leading-relaxed mb-0 whitespace-pre-wrap">{comment.content}</p>
+                  <div className="bg-gradient-to-br from-muted/60 to-muted/30 dark:from-muted/40 dark:to-muted/20 rounded-2xl rounded-tl-md px-4 py-3 border border-border/50 shadow-sm">
+                    <p className="text-sm leading-relaxed mb-0 whitespace-pre-wrap text-foreground">{comment.content}</p>
                   </div>
 
-                  {/* Reaction Bar */}
-                  <div className="flex gap-1 mt-1">
+                  {/* Reaction Bar - More visible */}
+                  <div className="flex gap-2 mt-2 px-1">
                     {comment.reactions.hearts > 0 && (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 text-xs bg-background/80 px-2 py-0.5 rounded-full border shadow-sm">
                         ❤️ {comment.reactions.hearts}
                       </span>
                     )}
                     {comment.reactions.thumbs > 0 && (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 text-xs bg-background/80 px-2 py-0.5 rounded-full border shadow-sm">
                         👍 {comment.reactions.thumbs}
+                      </span>
+                    )}
+                    {comment.reactions.hugs > 0 && (
+                      <span className="inline-flex items-center gap-1 text-xs bg-background/80 px-2 py-0.5 rounded-full border shadow-sm">
+                        🤗 {comment.reactions.hugs}
                       </span>
                     )}
                   </div>
@@ -184,29 +189,24 @@ export default function DiscussionRoom({
               </motion.div>
             ))}
 
-            {/* Typing Indicator */}
+            {/* Typing Indicator - Animated */}
             {isTyping && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex gap-3"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex gap-3 items-end"
               >
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-muted">
-                    <Users className="h-4 w-4" />
+                  <AvatarFallback className="bg-gradient-to-br from-gray-400 to-gray-500">
+                    <Users className="h-4 w-4 text-white" />
                   </AvatarFallback>
                 </Avatar>
-                <div className="bg-muted/50 rounded-2xl rounded-tl-none px-4 py-3">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" />
-                    <span
-                      className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
-                      style={{ animationDelay: "0.1s" }}
-                    />
-                    <span
-                      className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
-                      style={{ animationDelay: "0.2s" }}
-                    />
+                <div className="bg-muted/50 rounded-2xl rounded-tl-md px-4 py-3 border">
+                  <div className="flex gap-1.5 items-center">
+                    <span className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2.5 h-2.5 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span className="text-xs text-muted-foreground ml-2">Someone is typing...</span>
                   </div>
                 </div>
               </motion.div>
@@ -214,28 +214,48 @@ export default function DiscussionRoom({
           </div>
         </ScrollArea>
 
-        {/* Input Area */}
-        <div className="px-6 py-4 border-t bg-muted/20">
+        {/* Quick Reactions Bar */}
+        <div className="px-6 py-2 border-t bg-muted/30">
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground font-medium">Quick:</span>
+            <div className="flex gap-1">
+              {["👍", "❤️", "🤗", "😊", "🙏", "💪"].map((emoji) => (
+                <button
+                  key={emoji}
+                  className="h-8 w-8 rounded-full hover:bg-secondary hover:scale-110 transition-all flex items-center justify-center text-lg"
+                  onClick={() => setMessage(prev => prev + emoji)}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Input Area - Enhanced */}
+        <div className="px-6 py-4 border-t bg-background">
           <form onSubmit={handleSend} className="flex gap-3 items-end">
-            <Textarea
-              ref={textareaRef}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Type your message... (Shift+Enter for new line)"
-              className="min-h-[60px] max-h-[120px] resize-none flex-1"
-              rows={2}
-            />
+            <div className="flex-1 relative">
+              <Textarea
+                ref={textareaRef}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your message..."
+                className="min-h-[56px] max-h-[120px] resize-none pr-4 rounded-2xl border-2 focus:border-primary bg-muted/30"
+                rows={2}
+              />
+            </div>
             <Button
               type="submit"
               size="icon"
-              className="h-12 w-12 rounded-full flex-shrink-0"
+              className="h-14 w-14 rounded-2xl flex-shrink-0 shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
               disabled={!message.trim()}
             >
               <Send className="h-5 w-5" />
             </Button>
           </form>
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs text-muted-foreground mt-2 px-1">
             Press Enter to send • Shift+Enter for new line
           </p>
         </div>
